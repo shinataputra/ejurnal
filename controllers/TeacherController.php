@@ -1,0 +1,508 @@
+<?php
+// controllers/TeacherController.php
+require_once __DIR__ . '/../core/Controller.php';
+require_once __DIR__ . '/../models/Journal.php';
+require_once __DIR__ . '/../models/ClassModel.php';
+require_once __DIR__ . '/../models/Subject.php';
+require_once __DIR__ . '/../models/AcademicYear.php';
+require_once __DIR__ . '/../models/Task.php';
+
+class TeacherController extends Controller
+{
+    protected $journalModel;
+    protected $classModel;
+    protected $subjectModel;
+    protected $ayModel;
+    protected $taskModel;
+
+    public function __construct()
+    {
+        $this->journalModel = new Journal();
+        $this->classModel = new ClassModel();
+        $this->subjectModel = new Subject();
+        $this->ayModel = new AcademicYear();
+        $this->taskModel = new Task();
+    }
+
+    protected function requireTeacher()
+    {
+        if (empty($_SESSION['user']) || ($_SESSION['user']['role'] ?? '') !== 'teacher') {
+            $_SESSION['flash_error'] = 'Silakan login sebagai guru untuk mengakses halaman ini.';
+            $this->redirect('index.php?p=login');
+        }
+    }
+
+    public function dashboard()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+        $today_filled = $this->journalModel->countByUserAndDate($current_user['id'], date('Y-m-d')) > 0;
+        $this->render('teacher/dashboard.php', [
+            'current_user' => $current_user,
+            'today_filled' => $today_filled
+        ]);
+    }
+
+    public function add()
+    {
+        $this->requireTeacher();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $current = $_SESSION['user'];
+            $this->journalModel->create([
+                'user_id' => $current['id'],
+                'date' => $_POST['date'] ?? date('Y-m-d'),
+                'class_id' => $_POST['class_id'] ?? 0,
+                'subject_id' => $_POST['subject_id'] ?? 0,
+                'jam_ke' => $_POST['jam_ke'] ?? '',
+                'materi' => $_POST['materi'] ?? '',
+                'notes' => $_POST['notes'] ?? ''
+            ]);
+            $_SESSION['flash_success'] = 'Jurnal disimpan.';
+            $this->redirect('index.php?p=teacher/dashboard');
+        }
+        $classes = $this->classModel->all();
+        $subjects = $this->subjectModel->all();
+
+        // build jenjang list and rombel mapping from class names
+        $jenjangs = [];
+        $rombelsByJenjang = []; // jenjang => array of ['id'=>..., 'rombel'=>...]
+        foreach ($classes as $c) {
+            $name = trim($c['name']);
+            // normalize: allow formats like "X-IPA" or "X IPA" or "X RPL1"
+            $parts = preg_split('/[-\s]+/', $name, 2);
+            $jenjang = $parts[0] ?? '';
+            $rombel = $parts[1] ?? '';
+            if ($jenjang === '') continue;
+            if (!in_array($jenjang, $jenjangs)) $jenjangs[] = $jenjang;
+            $rombelsByJenjang[$jenjang][] = ['id' => $c['id'], 'rombel' => $rombel];
+        }
+
+        $this->render('teacher/add_journal.php', [
+            'classes' => $classes,
+            'subjects' => $subjects,
+            'jenjangs' => $jenjangs,
+            'rombelsByJenjang' => $rombelsByJenjang,
+            'current_user' => $_SESSION['user'] ?? null
+        ]);
+    }
+
+    public function list()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+        $journals = [];
+        $activeAY = $this->ayModel->active();
+        if ($activeAY) {
+            $journals = $this->journalModel->listByAcademicYear($activeAY['start_date'], $activeAY['end_date'], $current_user['id']);
+        }
+        $this->render('teacher/list_journal.php', [
+            'current_user' => $current_user,
+            'journals' => $journals,
+            'activeAY' => $activeAY
+        ]);
+    }
+
+    public function rekap()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+
+        // Get jenjangs for filter
+        $classes = $this->classModel->all();
+        $jenjangs = [];
+        $rombelsByJenjang = [];
+        foreach ($classes as $c) {
+            $name = trim($c['name']);
+            $parts = preg_split('/[-\s]+/', $name, 2);
+            $jenjang = $parts[0] ?? '';
+            $rombel = $parts[1] ?? '';
+            if ($jenjang === '') continue;
+            if (!in_array($jenjang, $jenjangs)) $jenjangs[] = $jenjang;
+            $rombelsByJenjang[$jenjang][] = ['id' => $c['id'], 'rombel' => $rombel];
+        }
+
+        // Get date range filters
+        $start_date = $_GET['start_date'] ?? date('Y-m-01');
+        $end_date = $_GET['end_date'] ?? date('Y-m-t');
+
+        $recap = $this->journalModel->dailyRecap($current_user['id'], $start_date, $end_date);
+
+        $this->render('teacher/rekap_daily.php', [
+            'current_user' => $current_user,
+            'recap' => $recap,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'jenjangs' => $jenjangs,
+            'rombelsByJenjang' => $rombelsByJenjang
+        ]);
+    }
+
+    public function rekapMonthly()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+
+        // Get year options (from active academic year or current year)
+        $activeAY = $this->ayModel->active();
+        $year = $_GET['year'] ?? ($activeAY ? date('Y', strtotime($activeAY['start_date'])) : date('Y'));
+
+        $yearOptions = [];
+        for ($i = 2020; $i <= date('Y'); $i++) {
+            $yearOptions[] = $i;
+        }
+
+        $monthlyData = $this->journalModel->monthlyRecap($current_user['id'], $year);
+
+        // Month names in Indonesian
+        $monthNames = [
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember'
+        ];
+
+        $this->render('teacher/rekap_monthly.php', [
+            'current_user' => $current_user,
+            'monthlyData' => $monthlyData,
+            'year' => $year,
+            'yearOptions' => $yearOptions,
+            'monthNames' => $monthNames
+        ]);
+    }
+
+    public function rekapPrint()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+
+        $month_year = $_GET['month_year'] ?? date('m-Y');
+        $journals = $this->journalModel->getJournalsByMonthAndUser($current_user['id'], $month_year);
+
+        // Format month_year for display
+        $parts = explode('-', $month_year);
+        $month = (int)$parts[0];
+        $year = (int)$parts[1];
+
+        $monthNames = [
+            'Januari',
+            'Februari',
+            'Maret',
+            'April',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agustus',
+            'September',
+            'Oktober',
+            'November',
+            'Desember'
+        ];
+
+        $month_display = $monthNames[$month - 1] . ' ' . $year;
+
+        $this->render('teacher/rekap_print.php', [
+            'current_user' => $current_user,
+            'journals' => $journals,
+            'month_year' => $month_year,
+            'month_display' => $month_display
+        ]);
+    }
+
+    public function view()
+    {
+        $this->requireTeacher();
+        $id = $_GET['id'] ?? 0;
+        $current_user = $_SESSION['user'];
+
+        $journal = $this->journalModel->findById($id, $current_user['id']);
+        if (!$journal) {
+            $_SESSION['flash_error'] = 'Jurnal tidak ditemukan.';
+            $this->redirect('index.php?p=teacher/list');
+        }
+
+        $this->render('teacher/journal_detail.php', [
+            'journal' => $journal,
+            'current_user' => $current_user
+        ]);
+    }
+
+    public function edit()
+    {
+        $this->requireTeacher();
+        $id = $_GET['id'] ?? 0;
+        $current_user = $_SESSION['user'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Handle POST update
+            $jenjang = $_POST['jenjang'] ?? '';
+            $rombel = $_POST['rombel'] ?? '';
+
+            // Find class_id from jenjang and rombel
+            $classes = $this->classModel->all();
+            $class_id = 0;
+            foreach ($classes as $c) {
+                $name = trim($c['name']);
+                $parts = preg_split('/[-\s]+/', $name, 2);
+                $c_jenjang = $parts[0] ?? '';
+                $c_rombel = $parts[1] ?? '';
+                if ($c_jenjang === $jenjang && $c_rombel === $rombel) {
+                    $class_id = $c['id'];
+                    break;
+                }
+            }
+
+            $this->journalModel->update($id, $current_user['id'], [
+                'date' => $_POST['date'] ?? date('Y-m-d'),
+                'class_id' => $class_id,
+                'subject_id' => $_POST['subject_id'] ?? 0,
+                'jam_ke' => $_POST['jam_ke'] ?? '',
+                'materi' => $_POST['materi'] ?? '',
+                'notes' => $_POST['notes'] ?? ''
+            ]);
+            $_SESSION['flash_success'] = 'Jurnal diperbarui.';
+            $this->redirect('index.php?p=teacher/list');
+        }
+
+        // Handle GET request
+        $journal = $this->journalModel->findById($id, $current_user['id']);
+        if (!$journal) {
+            $_SESSION['flash_error'] = 'Jurnal tidak ditemukan.';
+            $this->redirect('index.php?p=teacher/list');
+        }
+
+        $classes = $this->classModel->all();
+        $subjects = $this->subjectModel->all();
+
+        // build jenjang list and rombel mapping from class names
+        $jenjangs = [];
+        $rombelsByJenjang = [];
+        foreach ($classes as $c) {
+            $name = trim($c['name']);
+            $parts = preg_split('/[-\s]+/', $name, 2);
+            $jenjang = $parts[0] ?? '';
+            $rombel = $parts[1] ?? '';
+            if ($jenjang === '') continue;
+            if (!in_array($jenjang, $jenjangs)) $jenjangs[] = $jenjang;
+            $rombelsByJenjang[$jenjang][] = ['id' => $c['id'], 'rombel' => $rombel];
+        }
+
+        $this->render('teacher/edit_journal.php', [
+            'journal' => $journal,
+            'classes' => $classes,
+            'subjects' => $subjects,
+            'jenjangs' => $jenjangs,
+            'rombelsByJenjang' => $rombelsByJenjang,
+            'current_user' => $current_user
+        ]);
+    }
+
+    public function delete()
+    {
+        $this->requireTeacher();
+        $id = $_GET['id'] ?? 0;
+        $current_user = $_SESSION['user'];
+
+        $this->journalModel->delete($id, $current_user['id']);
+        $_SESSION['flash_success'] = 'Jurnal dihapus.';
+        $this->redirect('index.php?p=teacher/list');
+    }
+
+    public function sendTask()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Validate input
+            $jenjang = $_POST['jenjang'] ?? '';
+            $rombel = $_POST['rombel'] ?? '';
+            $date = $_POST['date'] ?? '';
+            $jam_ke = $_POST['jam_ke'] ?? '';
+
+            // Validate date (must be today or future)
+            $today = date('Y-m-d');
+            if ($date < $today) {
+                $_SESSION['flash_error'] = 'Tanggal harus hari ini atau masa depan.';
+                $this->redirect('index.php?p=teacher/send-task');
+                return;
+            }
+
+            // Validate jam_ke (should be 1-10)
+            if (!$jam_ke || $jam_ke < 1 || $jam_ke > 10) {
+                $_SESSION['flash_error'] = 'Jam ke harus antara 1-10.';
+                $this->redirect('index.php?p=teacher/send-task');
+                return;
+            }
+
+            // Find class_id from jenjang and rombel
+            $classes = $this->classModel->all();
+            $class_id = 0;
+            foreach ($classes as $c) {
+                $name = trim($c['name']);
+                $parts = preg_split('/[-\s]+/', $name, 2);
+                $c_jenjang = $parts[0] ?? '';
+                $c_rombel = $parts[1] ?? '';
+                if ($c_jenjang === $jenjang && $c_rombel === $rombel) {
+                    $class_id = $c['id'];
+                    break;
+                }
+            }
+
+            if ($class_id === 0) {
+                $_SESSION['flash_error'] = 'Kelas tidak ditemukan.';
+                $this->redirect('index.php?p=teacher/send-task');
+                return;
+            }
+
+            // Handle file upload
+            $file_path = null;
+            if (isset($_FILES['pdf_file']) && $_FILES['pdf_file']['error'] === UPLOAD_ERR_OK) {
+                $file = $_FILES['pdf_file'];
+
+                // Check MIME type
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime_type = finfo_file($finfo, $file['tmp_name']);
+                finfo_close($finfo);
+
+                if ($mime_type !== 'application/pdf') {
+                    $_SESSION['flash_error'] = 'File harus berupa PDF.';
+                    $this->redirect('index.php?p=teacher/send-task');
+                    return;
+                }
+
+                // Create upload directory if not exists
+                $upload_dir = __DIR__ . '/../assets/uploads/tasks/';
+                if (!is_dir($upload_dir)) {
+                    mkdir($upload_dir, 0755, true);
+                }
+
+                // Generate unique filename with hash
+                $hash = md5_file($file['tmp_name']) . '_' . time();
+                $filename = $hash . '.pdf';
+                $file_path = 'assets/uploads/tasks/' . $filename;
+
+                if (!move_uploaded_file($file['tmp_name'], $upload_dir . $filename)) {
+                    $_SESSION['flash_error'] = 'Gagal mengunggah file.';
+                    $this->redirect('index.php?p=teacher/send-task');
+                    return;
+                }
+            } else {
+                $_SESSION['flash_error'] = 'File PDF harus diunggah.';
+                $this->redirect('index.php?p=teacher/send-task');
+                return;
+            }
+
+            // Save to database
+            $this->taskModel->create([
+                ':user_id' => $current_user['id'],
+                ':jenjang' => $jenjang,
+                ':class_id' => $class_id,
+                ':date' => $date,
+                ':jam_ke' => $jam_ke,
+                ':file_path' => $file_path,
+                ':status' => 'pending'
+            ]);
+
+            $_SESSION['flash_success'] = 'Tugas berhasil dikirim untuk verifikasi admin.';
+            $this->redirect('index.php?p=teacher/send-task');
+        }
+
+        // GET request: Check if teacher wants form or has tasks
+        $force_form = isset($_GET['form']) && $_GET['form'] === '1';
+        $tasks = $this->taskModel->findByTeacher($current_user['id']);
+
+        if (!empty($tasks) && !$force_form) {
+            // If have tasks and not forced to form, show list instead
+            $pending_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'pending');
+            $verified_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'verified');
+            $rejected_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'rejected');
+
+            $this->render('teacher/list_tasks.php', [
+                'current_user' => $current_user,
+                'tasks' => $tasks,
+                'pending_count' => $pending_count,
+                'verified_count' => $verified_count,
+                'rejected_count' => $rejected_count
+            ]);
+        } else {
+            // If no tasks, show form
+            $classes = $this->classModel->all();
+            $jenjangs = [];
+            $rombelsByJenjang = [];
+            foreach ($classes as $c) {
+                $name = trim($c['name']);
+                $parts = preg_split('/[-\s]+/', $name, 2);
+                $jenjang = $parts[0] ?? '';
+                $rombel = $parts[1] ?? '';
+                if ($jenjang === '') continue;
+                if (!in_array($jenjang, $jenjangs)) $jenjangs[] = $jenjang;
+                $rombelsByJenjang[$jenjang][] = ['id' => $c['id'], 'rombel' => $rombel];
+            }
+
+            $this->render('teacher/send_task.php', [
+                'current_user' => $current_user,
+                'jenjangs' => $jenjangs,
+                'rombelsByJenjang' => $rombelsByJenjang
+            ]);
+        }
+    }
+
+    public function listTasks()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+
+        $tasks = $this->taskModel->findByTeacher($current_user['id']);
+
+        // Count by status
+        $pending_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'pending');
+        $verified_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'verified');
+        $rejected_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'rejected');
+
+        $this->render('teacher/list_tasks.php', [
+            'current_user' => $current_user,
+            'tasks' => $tasks,
+            'pending_count' => $pending_count,
+            'verified_count' => $verified_count,
+            'rejected_count' => $rejected_count
+        ]);
+    }
+
+    public function viewTask()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+        $id = $_GET['id'] ?? 0;
+
+        $task = $this->taskModel->findById($id);
+        if (!$task || $task['user_id'] != $current_user['id']) {
+            $_SESSION['flash_error'] = 'Tugas tidak ditemukan.';
+            $this->redirect('index.php?p=teacher/list-tasks');
+            return;
+        }
+
+        $this->render('teacher/view_task.php', [
+            'current_user' => $current_user,
+            'task' => $task
+        ]);
+    }
+
+    public function deleteTask()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+        $id = $_GET['id'] ?? 0;
+
+        $this->taskModel->delete($id, $current_user['id']);
+        $_SESSION['flash_success'] = 'Tugas dihapus.';
+        $this->redirect('index.php?p=teacher/list-tasks');
+    }
+}
