@@ -19,7 +19,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Rombel <span class="text-red-500">*</span></label>
-                    <input type="text" name="rombel" placeholder="Contoh: RPL 1, IPA A" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" required>
+                    <input type="text" name="rombel" placeholder="Contoh: RPL1, AK1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" required>
                 </div>
             </div>
         </div>

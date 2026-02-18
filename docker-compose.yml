@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  ejurnal-app:
+    build: .
+    container_name: ejurnal-app
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - shared-net
+    environment:
+      TZ: Asia/Jakarta
+
+networks:
+  shared-net:
+    external: true

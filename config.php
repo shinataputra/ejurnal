@@ -3,10 +3,10 @@
 
 $config = [
     'db' => [
-        'host' => '127.0.0.1',
+        'host' => 'shared-mysql',
         'name' => 'ejurnal',
         'user' => 'root',
-        'pass' => 'root'
+        'pass' => 'rootpass'
     ]
 ];
 

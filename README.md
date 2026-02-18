@@ -76,6 +76,12 @@ Atau jalankan melalui PHP:
 php db/migrate.php
 ```
 
+Atau jalankan melalui Docker:
+
+```bash
+docker exec -it ejurnal-app php db/migrate.php
+```
+
 ### 4. Seed Data (Optional)
 
 Untuk membuat data awal (admin + teacher + sample data):
