@@ -4,9 +4,9 @@
 <div class="bg-white rounded-lg shadow-md p-6">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-3xl font-bold text-gray-900">📋 Detail Tugas</h1>
-        <a href="?p=teacher/list-tasks" class="text-blue-600 hover:text-blue-800 font-semibold">
+        <!-- <a href="?p=teacher/list-tasks" class="text-blue-600 hover:text-blue-800 font-semibold">
             ← Kembali
-        </a>
+        </a> -->
     </div>
 
     <?php if (!empty($_SESSION['flash_error'])): ?>
