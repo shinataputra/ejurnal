@@ -131,10 +131,10 @@
             <?php endforeach; ?>
         </div>
 
-        <!-- Back to Daily -->
+        <!-- Removed separate daily recap link; daily recap is accessible via Lihat Jurnal -->
         <div class="text-center pt-4">
-            <a href="?p=teacher/rekap" class="text-blue-600 hover:text-blue-800 font-semibold text-sm md:text-base">
-                ← Kembali ke Rekap Harian
+            <a href="?p=teacher/list" class="text-blue-600 hover:text-blue-800 font-semibold text-sm md:text-base">
+                ← Lihat Jurnal (Rekap Harian tersedia di halaman jurnal)
             </a>
         </div>
     <?php endif; ?>

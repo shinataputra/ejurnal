@@ -29,6 +29,43 @@
                 page-break-after: always;
             }
         }
+
+        /* Mobile-friendly table: stack cells */
+        @media (max-width: 640px) {
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                margin-bottom: 12px;
+                border: 1px solid #e5e7eb;
+                padding: 8px;
+            }
+
+            td {
+                display: block;
+                text-align: left;
+                padding: 6px 8px;
+                border: none;
+            }
+
+            td[data-label]:before {
+                content: attr(data-label) ": ";
+                font-weight: 600;
+                display: inline-block;
+                width: 110px;
+            }
+        }
     </style>
 </head>
 
@@ -122,23 +159,23 @@
                                     }
                                 ?>
                                     <tr class="<?= $row_number % 2 === 0 ? 'bg-gray-50' : 'bg-white' ?>">
-                                        <td class="border border-gray-300 px-3 py-3 text-sm"><?= $row_number ?></td>
-                                        <td class="border border-gray-300 px-3 py-3 text-sm<?= $is_new_date ? ' bg-gray-100 font-semibold' : '' ?>">
+                                        <td class="border border-gray-300 px-3 py-3 text-sm" data-label="NO"><?= $row_number ?></td>
+                                        <td class="border border-gray-300 px-3 py-3 text-sm<?= $is_new_date ? ' bg-gray-100 font-semibold' : '' ?>" data-label="TANGGAL">
                                             <?= date('d/m/Y', strtotime($journal['date'])) ?>
                                             <?php if ($is_new_date): ?>
                                                 <br><span class="text-xs text-gray-600"><?= date('l', strtotime($journal['date'])) ?></span>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="border border-gray-300 px-3 py-3 text-sm">
+                                        <td class="border border-gray-300 px-3 py-3 text-sm" data-label="KELAS">
                                             <?= htmlspecialchars(str_replace('-', ' ', $journal['class_name'])) ?>
                                         </td>
-                                        <td class="border border-gray-300 px-3 py-3 text-sm">
+                                        <td class="border border-gray-300 px-3 py-3 text-sm" data-label="MAPEL">
                                             <?= htmlspecialchars($journal['subject_name']) ?>
                                         </td>
-                                        <td class="border border-gray-300 px-3 py-3 text-sm text-center">
+                                        <td class="border border-gray-300 px-3 py-3 text-sm text-center" data-label="JAM KE">
                                             <?= htmlspecialchars($journal['jam_ke']) ?>
                                         </td>
-                                        <td class="border border-gray-300 px-3 py-3 text-sm">
+                                        <td class="border border-gray-300 px-3 py-3 text-sm" data-label="MATERI">
                                             <?= htmlspecialchars($journal['materi']) ?>
                                         </td>
                                     </tr>

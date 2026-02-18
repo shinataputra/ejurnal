@@ -9,10 +9,16 @@ services:
       - "8081:80"
     volumes:
       - ./:/var/www/html
+    # Ensure Composer runs inside the container on start to install PHP deps
+    # environment:
+    #   COMPOSER_ALLOW_SUPERUSER: "1"
+    command: bash -lc "if [ ! -d /var/www/html/vendor ]; then composer install --no-interaction --prefer-dist; fi && docker-php-entrypoint apache2-foreground"
     networks:
       - shared-net
+    # merged environment variables
     environment:
       TZ: Asia/Jakarta
+      COMPOSER_ALLOW_SUPERUSER: "1"
 
 networks:
   shared-net:

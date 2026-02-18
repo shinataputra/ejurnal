@@ -211,6 +211,43 @@ class TeacherController extends Controller
 
         $month_display = $monthNames[$month - 1] . ' ' . $year;
 
+        // If dompdf is available, generate PDF; otherwise render printable HTML
+        $vendor = __DIR__ . '/../vendor/autoload.php';
+        if (file_exists($vendor)) {
+            require_once $vendor;
+            try {
+                // Render minimal HTML for PDF using a dedicated view
+                $month_display_local = $month_display; // local alias for view
+                $journals_local = $journals;
+                $current_user_local = $current_user;
+
+                ob_start();
+                include __DIR__ . '/../views/teacher/rekap_pdf.php';
+                $html = ob_get_clean();
+
+                $options = new \Dompdf\Options();
+                $options->set('isRemoteEnabled', false);
+                $dompdf = new \Dompdf\Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+
+                $filename = 'rekap_' . ($month_year) . '.pdf';
+                $dompdf->stream($filename, ['Attachment' => 0]);
+                exit;
+            } catch (\Exception $e) {
+                // fallback to HTML render on error
+                $this->render('teacher/rekap_print.php', [
+                    'current_user' => $current_user,
+                    'journals' => $journals,
+                    'month_year' => $month_year,
+                    'month_display' => $month_display
+                ]);
+                return;
+            }
+        }
+
+        // fallback: render printable HTML
         $this->render('teacher/rekap_print.php', [
             'current_user' => $current_user,
             'journals' => $journals,
