@@ -86,8 +86,8 @@
             <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition">
                 📤 Kirim Tugas
             </button>
-            <a href="?p=teacher/send-task" class="flex-1 text-center bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-6 rounded-lg transition">
-                Batal
+            <a href="?p=teacher/dashboard" class="flex-1 text-center bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-6 rounded-lg transition">
+                ← Kembali
             </a>
         </div>
     </form>

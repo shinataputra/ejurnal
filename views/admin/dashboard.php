@@ -15,7 +15,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-blue-600 font-semibold mb-1">👥 TOTAL GURU</p>
-                    <p class="text-3xl font-bold text-blue-900">—</p>
+                    <p class="text-3xl font-bold text-blue-900"><?php echo intval($teacher_count ?? 0); ?></p>
                     <p class="text-xs text-blue-600 mt-2">Guru aktif</p>
                 </div>
             </div>
@@ -26,7 +26,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-green-600 font-semibold mb-1">🎓 TOTAL KELAS</p>
-                    <p class="text-3xl font-bold text-green-900">—</p>
+                    <p class="text-3xl font-bold text-green-900"><?php echo intval($class_count ?? 0); ?></p>
                     <p class="text-xs text-green-600 mt-2">Kelas terdaftar</p>
                 </div>
             </div>
@@ -37,110 +37,99 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-purple-600 font-semibold mb-1">📅 TAHUN AKTIF</p>
-                    <p class="text-2xl font-bold text-purple-900">—</p>
-                    <p class="text-xs text-purple-600 mt-2">Tahun pelajaran</p>
+                    <p class="text-2xl font-bold text-purple-900"><?php echo htmlspecialchars($active_year['name'] ?? '-'); ?></p>
+                    <p class="text-xs text-purple-600 mt-2"><?php echo isset($active_year['start_date']) ? htmlspecialchars($active_year['start_date']) . ' → ' . htmlspecialchars($active_year['end_date']) : 'Tahun pelajaran'; ?></p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions Section -->
-    <div>
-        <h2 class="text-xl font-bold text-gray-900 mb-4">📋 Aksi Cepat</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <!-- Add Teacher -->
-            <a href="?p=admin/usersAdd" class="bg-white border-2 border-blue-200 hover:border-blue-400 rounded-lg p-4 text-center transition">
-                <div class="text-2xl mb-2">➕</div>
-                <p class="font-semibold text-sm text-gray-900">Tambah Guru</p>
-                <p class="text-xs text-gray-500 mt-1">Daftarkan guru baru</p>
-            </a>
+    <!-- Extended Statistics and Lists -->
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Tasks summary -->
+        <div class="col-span-1 lg:col-span-1 bg-white border rounded-lg p-4 shadow">
+            <h3 class="font-semibold mb-3">Ringkasan Tugas</h3>
+            <ul class="space-y-2 text-sm">
+                <li><strong>Menunggu:</strong> <?php echo intval($pending_count ?? 0); ?></li>
+                <li><strong>Terverifikasi:</strong> <?php echo intval($verified_count ?? 0); ?></li>
+                <li><strong>Ditolak:</strong> <?php echo intval($rejected_count ?? 0); ?></li>
+            </ul>
+        </div>
 
-            <!-- Add Class -->
-            <a href="?p=admin/classesAdd" class="bg-white border-2 border-green-200 hover:border-green-400 rounded-lg p-4 text-center transition">
-                <div class="text-2xl mb-2">🎓</div>
-                <p class="font-semibold text-sm text-gray-900">Tambah Kelas</p>
-                <p class="text-xs text-gray-500 mt-1">Buat kelas baru</p>
-            </a>
+        <!-- Journals summary -->
+        <div class="col-span-1 lg:col-span-1 bg-white border rounded-lg p-4 shadow">
+            <h3 class="font-semibold mb-3">Ringkasan Jurnal</h3>
+            <p class="text-sm"><strong>Total entri:</strong> <?php echo intval($total_journals ?? 0); ?></p>
+            <p class="text-sm"><strong>Bulan ini:</strong> <?php echo intval($journals_this_month ?? 0); ?></p>
+            <h4 class="mt-3 font-semibold">Top Guru (Bulan ini)</h4>
+            <ol class="text-sm mt-2 space-y-1">
+                <?php if (!empty($top_teachers)): foreach ($top_teachers as $t): ?>
+                        <li><?php echo htmlspecialchars($t['name']); ?> — <span class="text-xs text-gray-600"><?php echo intval($t['total_entries']); ?> entri</span></li>
+                    <?php endforeach;
+                else: ?>
+                    <li class="text-xs text-gray-500">Belum ada data.</li>
+                <?php endif; ?>
+            </ol>
+        </div>
 
-            <!-- Add Subject -->
-            <a href="?p=admin/subjectsAdd" class="bg-white border-2 border-yellow-200 hover:border-yellow-400 rounded-lg p-4 text-center transition">
-                <div class="text-2xl mb-2">📚</div>
-                <p class="font-semibold text-sm text-gray-900">Tambah Mapel</p>
-                <p class="text-xs text-gray-500 mt-1">Daftarkan mata pelajaran</p>
-            </a>
+        <!-- Recent activity -->
+        <div class="col-span-1 lg:col-span-1 bg-white border rounded-lg p-4 shadow">
+            <h3 class="font-semibold mb-3">Aktivitas Terbaru</h3>
+            <div class="text-sm">
+                <p class="font-semibold">Jurnal Terbaru</p>
+                <ul class="mt-2 space-y-1">
+                    <?php if (!empty($recent_journals)): foreach ($recent_journals as $rj): ?>
+                            <li class="text-xs"><strong><?php echo htmlspecialchars($rj['teacher_name']); ?></strong> — <?php echo htmlspecialchars($rj['class_name']); ?> — <?php echo htmlspecialchars($rj['date']); ?></li>
+                        <?php endforeach;
+                    else: ?>
+                        <li class="text-xs text-gray-500">Tidak ada jurnal.</li>
+                    <?php endif; ?>
+                </ul>
 
-            <!-- Add Academic Year -->
-            <a href="?p=admin/academicYearsAdd" class="bg-white border-2 border-purple-200 hover:border-purple-400 rounded-lg p-4 text-center transition">
-                <div class="text-2xl mb-2">📅</div>
-                <p class="font-semibold text-sm text-gray-900">Tahun Pelajaran</p>
-                <p class="text-xs text-gray-500 mt-1">Kelola tahun akademik</p>
-            </a>
+                <p class="font-semibold mt-3">Tugas Terbaru</p>
+                <ul class="mt-2 space-y-1">
+                    <?php if (!empty($recent_tasks)): foreach ($recent_tasks as $rt): ?>
+                            <li class="text-xs"><strong><?php echo htmlspecialchars($rt['teacher_name']); ?></strong> — <?php echo htmlspecialchars($rt['class_name']); ?> — <span class="text-gray-600"><?php echo htmlspecialchars($rt['status']); ?></span></li>
+                        <?php endforeach;
+                    else: ?>
+                        <li class="text-xs text-gray-500">Tidak ada tugas.</li>
+                    <?php endif; ?>
+                </ul>
+            </div>
         </div>
     </div>
 
-    <!-- Management Section -->
-    <div>
-        <h2 class="text-xl font-bold text-gray-900 mb-4">⚙️ Manajemen</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- View Teachers -->
-            <a href="?p=admin/users" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-4 flex items-center gap-3 transition">
-                <div class="text-2xl">👥</div>
-                <div>
-                    <p class="font-semibold">Kelola Guru</p>
-                    <p class="text-xs text-blue-200">Lihat dan kelola data guru</p>
-                </div>
-            </a>
-
-            <!-- View Classes -->
-            <a href="?p=admin/classes" class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-4 flex items-center gap-3 transition">
-                <div class="text-2xl">🎓</div>
-                <div>
-                    <p class="font-semibold">Kelola Kelas</p>
-                    <p class="text-xs text-green-200">Lihat dan kelola kelas</p>
-                </div>
-            </a>
-
-            <!-- View Subjects -->
-            <a href="?p=admin/subjects" class="bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg p-4 flex items-center gap-3 transition">
-                <div class="text-2xl">📚</div>
-                <div>
-                    <p class="font-semibold">Kelola Mapel</p>
-                    <p class="text-xs text-yellow-200">Lihat dan kelola mata pelajaran</p>
-                </div>
-            </a>
-
-            <!-- View Academic Years -->
-            <a href="?p=admin/academicYears" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-4 flex items-center gap-3 transition">
-                <div class="text-2xl">📅</div>
-                <div>
-                    <p class="font-semibold">Tahun Pelajaran</p>
-                    <p class="text-xs text-purple-200">Kelola tahun akademik aktif</p>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- Reports Section -->
-    <div>
-        <h2 class="text-xl font-bold text-gray-900 mb-4">📊 Rekap & Laporan</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- Recap by Class -->
-            <a href="?p=admin/rekap-by-class" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-4 flex items-center gap-3 transition">
-                <div class="text-2xl">🎓</div>
-                <div>
-                    <p class="font-semibold">Rekap Per Kelas</p>
-                    <p class="text-xs text-blue-200">Rekap jurnal berdasarkan kelas</p>
-                </div>
-            </a>
-
-            <!-- Recap by Teacher -->
-            <a href="?p=admin/rekap-by-teacher" class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-4 flex items-center gap-3 transition">
-                <div class="text-2xl">👥</div>
-                <div>
-                    <p class="font-semibold">Rekap Per Guru</p>
-                    <p class="text-xs text-green-200">Rekap jurnal berdasarkan guru</p>
-                </div>
-            </a>
+    <!-- Per-class recap table -->
+    <div class="mt-6 bg-white border rounded-lg p-4 shadow">
+        <h3 class="font-semibold mb-3">Rekap Per Kelas (<?php echo date('F Y'); ?>)</h3>
+        <div class="overflow-auto">
+            <table class="w-full text-sm table-auto">
+                <thead>
+                    <tr class="text-left text-xs text-gray-600">
+                        <th class="px-2 py-1">Kelas</th>
+                        <th class="px-2 py-1">Entri</th>
+                        <th class="px-2 py-1">Guru</th>
+                        <th class="px-2 py-1">Hari Terisi</th>
+                        <th class="px-2 py-1">Mapel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($class_recap)): foreach ($class_recap as $c): ?>
+                            <tr>
+                                <td class="px-2 py-1"><?php echo htmlspecialchars($c['class_name']); ?></td>
+                                <td class="px-2 py-1"><?php echo intval($c['total_entries']); ?></td>
+                                <td class="px-2 py-1"><?php echo intval($c['total_teachers']); ?></td>
+                                <td class="px-2 py-1"><?php echo intval($c['days_filled']); ?></td>
+                                <td class="px-2 py-1"><?php echo htmlspecialchars($c['subjects_covered']); ?></td>
+                            </tr>
+                        <?php endforeach;
+                    else: ?>
+                        <tr>
+                            <td class="px-2 py-1 text-xs text-gray-500" colspan="5">Tidak ada data rekap.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

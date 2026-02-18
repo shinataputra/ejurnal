@@ -41,8 +41,58 @@ class AdminController extends Controller
     public function dashboard()
     {
         $this->requireAdmin();
-        // basic stats
-        $this->render('admin/dashboard.php', ['current_user' => $_SESSION['user']]);
+        // Prepare detailed statistics for admin dashboard
+        $db = $this->userModel->getDb();
+
+        // Counts
+        $teacher_count = (int)$db->query("SELECT COUNT(*) as c FROM users WHERE role = 'teacher'")->fetch()['c'];
+        $class_count = (int)$db->query("SELECT COUNT(*) as c FROM classes")->fetch()['c'];
+        $subject_count = (int)$db->query("SELECT COUNT(*) as c FROM subjects")->fetch()['c'];
+
+        // Active academic year
+        $active_year = $this->ayModel->active();
+
+        // Tasks summary
+        $pending_count = $this->taskModel->countByStatus('pending');
+        $verified_count = $this->taskModel->countByStatus('verified');
+        $rejected_count = $this->taskModel->countByStatus('rejected');
+
+        // Journals summary
+        $total_journals = (int)$db->query("SELECT COUNT(*) as c FROM journals")->fetch()['c'];
+        $month = date('m');
+        $year = date('Y');
+        $journals_this_month = $db->prepare("SELECT COUNT(*) as c FROM journals WHERE MONTH(date)=:m AND YEAR(date)=:y");
+        $journals_this_month->execute([':m' => $month, ':y' => $year]);
+        $journals_this_month = (int)$journals_this_month->fetch()['c'];
+
+        // Top teachers this month (by journal entries)
+        $stmt = $db->prepare("SELECT u.id, u.name, COUNT(*) as total_entries FROM journals j JOIN users u ON j.user_id = u.id WHERE MONTH(j.date)=:m AND YEAR(j.date)=:y AND u.role='teacher' GROUP BY u.id, u.name ORDER BY total_entries DESC LIMIT 5");
+        $stmt->execute([':m' => $month, ':y' => $year]);
+        $top_teachers = $stmt->fetchAll();
+
+        // Recent journals and tasks
+        $recent_journals = $db->query("SELECT j.*, u.name as teacher_name, c.name as class_name FROM journals j JOIN users u ON j.user_id = u.id JOIN classes c ON j.class_id = c.id ORDER BY j.date DESC LIMIT 6")->fetchAll();
+        $recent_tasks = $db->query("SELECT t.*, u.name as teacher_name, c.name as class_name FROM tasks t JOIN users u ON t.user_id = u.id JOIN classes c ON t.class_id = c.id ORDER BY t.created_at DESC LIMIT 6")->fetchAll();
+
+        // Per-class recap for current month
+        $class_recap = $this->journalModel->rekapByClass($month, $year);
+
+        $this->render('admin/dashboard.php', [
+            'current_user' => $_SESSION['user'],
+            'teacher_count' => $teacher_count,
+            'class_count' => $class_count,
+            'subject_count' => $subject_count,
+            'active_year' => $active_year,
+            'pending_count' => $pending_count,
+            'verified_count' => $verified_count,
+            'rejected_count' => $rejected_count,
+            'total_journals' => $total_journals,
+            'journals_this_month' => $journals_this_month,
+            'top_teachers' => $top_teachers,
+            'recent_journals' => $recent_journals,
+            'recent_tasks' => $recent_tasks,
+            'class_recap' => $class_recap
+        ]);
     }
 
     public function users()

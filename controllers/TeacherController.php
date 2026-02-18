@@ -215,7 +215,7 @@ class TeacherController extends Controller
 
         $month_display = $monthNames[$month - 1] . ' ' . $year;
 
-        // If dompdf is available, generate PDF; otherwise render printable HTML
+        // Generate and download PDF directly
         $vendor = __DIR__ . '/../vendor/autoload.php';
         if (file_exists($vendor)) {
             require_once $vendor;
@@ -236,28 +236,19 @@ class TeacherController extends Controller
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
 
-                $filename = 'rekap_' . ($month_year) . '.pdf';
-                $dompdf->stream($filename, ['Attachment' => 0]);
+                $filename = 'Rekap_Jurnal_' . $month_year . '.pdf';
+                // Set Attachment to 1 (true) for download instead of view
+                $dompdf->stream($filename, ['Attachment' => 1]);
                 exit;
             } catch (\Exception $e) {
-                // fallback to HTML render on error
-                $this->render('teacher/rekap_print.php', [
-                    'current_user' => $current_user,
-                    'journals' => $journals,
-                    'month_year' => $month_year,
-                    'month_display' => $month_display
-                ]);
+                $_SESSION['flash_error'] = 'Gagal membuat PDF: ' . $e->getMessage();
+                $this->redirect('index.php?p=teacher/rekap-monthly');
                 return;
             }
         }
 
-        // fallback: render printable HTML
-        $this->render('teacher/rekap_print.php', [
-            'current_user' => $current_user,
-            'journals' => $journals,
-            'month_year' => $month_year,
-            'month_display' => $month_display
-        ]);
+        $_SESSION['flash_error'] = 'DomPDF tidak tersedia.';
+        $this->redirect('index.php?p=teacher/rekap-monthly');
     }
 
     public function view()

@@ -20,7 +20,7 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
     <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 
-<body class="<?= $isLoginPage ? 'bg-gradient-to-br from-blue-50 to-indigo-100' : 'bg-gray-100 text-gray-800' ?>">
+<body class="<?= $isLoginPage ? 'bg-gradient-to-br from-blue-50 to-indigo-100' : 'bg-gray-50 text-gray-800' ?>">
     <?php if ($isLoginPage): ?>
         <!-- Login Page (Full Screen) -->
         <?php
@@ -135,79 +135,79 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
             </div>
         <?php else: ?>
             <!-- Admin Layout (With Sidebar) -->
-            <div class="flex h-screen bg-gray-100">
+            <div class="flex h-screen bg-gray-50">
                 <!-- Sidebar -->
-                <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-700 to-blue-900 text-white transform -translate-x-full md:translate-x-0 md:static md:inset-auto transition-transform duration-300 ease-in-out shadow-lg">
+                <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white text-gray-800 transform -translate-x-full md:translate-x-0 md:static md:inset-auto transition-transform duration-300 ease-in-out border-r border-gray-200">
                     <!-- Sidebar Header -->
-                    <div class="p-4 border-b border-blue-600">
-                        <div class="flex items-center gap-2 mb-2">
+                    <div class="p-4 border-b border-gray-100">
+                        <div class="flex items-center gap-3 mb-2">
                             <?php if ($logoPath && file_exists(__DIR__ . '/../' . $logoPath)): ?>
-                                <img src="<?= htmlspecialchars($logoPath) ?>" alt="Logo" class="h-8 w-8 rounded-full object-cover border border-white">
+                                <img src="<?= htmlspecialchars($logoPath) ?>" alt="Logo" class="h-8 w-8 rounded-md object-cover border border-gray-100">
                             <?php endif; ?>
-                            <h2 class="text-xl font-bold"><a href="?p=admin/dashboard">eJurnal</a></h2>
+                            <h2 class="text-lg font-semibold text-gray-900"><a href="?p=admin/dashboard">eJurnal</a></h2>
                         </div>
-                        <p class="text-xs text-blue-200"><?= htmlspecialchars($schoolName) ?></p>
+                        <p class="text-xs text-gray-500"><?= htmlspecialchars($schoolName) ?></p>
                     </div>
 
                     <!-- User Info -->
                     <?php if (!empty($current_user)): ?>
-                        <div class="p-4 border-b border-blue-600 bg-blue-800 bg-opacity-50">
-                            <p class="text-sm font-semibold"><?= htmlspecialchars($current_user['name']) ?></p>
-                            <p class="text-xs text-blue-200 capitalize"><?= htmlspecialchars($current_user['role']) ?></p>
+                        <div class="p-4 border-b border-gray-100 bg-gray-50">
+                            <p class="text-sm font-semibold text-gray-900"><?= htmlspecialchars($current_user['name']) ?></p>
+                            <p class="text-xs text-gray-500 capitalize"><?= htmlspecialchars($current_user['role']) ?></p>
                         </div>
                     <?php endif; ?>
 
                     <!-- Navigation Menu -->
-                    <nav class="flex-1 p-4 space-y-2">
+                    <nav class="flex-1 p-4 space-y-1">
                         <?php if (!empty($current_user)): ?>
                             <?php if ($current_user['role'] === 'teacher'): ?>
                                 <!-- Teacher Menu -->
-                                <a href="?p=teacher/dashboard" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                <a href="?p=teacher/dashboard" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                     📊 Dashboard
                                 </a>
-                                <a href="?p=teacher/add" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                <a href="?p=teacher/add" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                     ➕ Tambah Jurnal
                                 </a>
-                                <a href="?p=teacher/list" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                <a href="?p=teacher/list" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                     📋 Lihat Jurnal
                                 </a>
-                                <a href="?p=teacher/send-task" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                <a href="?p=teacher/send-task" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                     📤 Kirim Tugas Kelas
                                 </a>
                             <?php else: ?>
                                 <!-- Admin Menu -->
-                                <a href="?p=admin/dashboard" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm font-semibold">
+                                <a href="?p=admin/dashboard" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm font-semibold text-gray-900">
                                     📊 Dashboard
                                 </a>
-                                <div class="pt-2 border-t border-blue-600">
-                                    <p class="px-4 py-2 text-xs font-semibold text-blue-300 uppercase">Master Data</p>
-                                    <a href="?p=admin/users" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                <div class="pt-3 border-t border-gray-100">
+                                    <p class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">Master Data</p>
+                                    <a href="?p=admin/users" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                         👥 Kelola Pengguna
                                     </a>
-                                    <a href="?p=admin/classes" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                    <a href="?p=admin/classes" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                         🎓 Kelola Kelas
                                     </a>
-                                    <a href="?p=admin/subjects" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                    <a href="?p=admin/subjects" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                         📚 Kelola Mapel
                                     </a>
-                                    <a href="?p=admin/academic_years" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                    <a href="?p=admin/academic_years" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                         📅 Tahun Pelajaran
                                     </a>
                                 </div>
-                                <div class="pt-2 border-t border-blue-600">
-                                    <p class="px-4 py-2 text-xs font-semibold text-blue-300 uppercase">Validasi</p>
-                                    <a href="?p=admin/tasks" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                <div class="pt-3 border-t border-gray-100">
+                                    <p class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">Validasi</p>
+                                    <a href="?p=admin/tasks" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                         ✏️ Tugas Guru
                                     </a>
                                 </div>
-                                <div class="pt-2 border-t border-blue-600">
-                                    <p class="px-4 py-2 text-xs font-semibold text-blue-300 uppercase">Rekap & Laporan</p>
-                                    <a href="?p=admin/rekap" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                <div class="pt-3 border-t border-gray-100">
+                                    <p class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">Rekap & Laporan</p>
+                                    <a href="?p=admin/rekap" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                         📊 Rekap Jurnal
                                     </a>
                                 </div>
-                                <div class="pt-2 border-t border-blue-600">
-                                    <a href="?p=admin/settings" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                <div class="pt-3 border-t border-gray-100">
+                                    <a href="?p=admin/settings" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                         ⚙️ Pengaturan Sekolah
                                     </a>
                                 </div>
@@ -216,9 +216,9 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                     </nav>
 
                     <!-- Sidebar Footer -->
-                    <div class="p-4 border-t border-blue-600 space-y-2">
+                    <div class="p-4 border-t border-gray-100 space-y-2">
                         <?php if (!empty($current_user)): ?>
-                            <a href="?p=logout" class="block w-full text-center px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition text-sm font-semibold">
+                            <a href="?p=logout" class="block w-full text-center px-4 py-2 bg-red-50 hover:bg-red-100 rounded-md transition text-sm font-semibold text-red-600">
                                 🚪 Logout
                             </a>
                         <?php endif; ?>
@@ -243,7 +243,7 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                             <h1 class="text-base font-bold text-gray-900 truncate flex-1 text-center px-2"><a href="?p=admin/dashboard">eJurnal</a></h1>
                             <!-- Right: User Profile Dropdown -->
                             <div class="relative flex-shrink-0">
-                                <button onclick="toggleAdminProfileDropdown()" class="flex items-center justify-center h-9 w-9 rounded-full bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button onclick="toggleAdminProfileDropdown()" class="flex items-center justify-center h-9 w-9 rounded-full bg-gray-100 text-gray-700 font-semibold text-sm hover:bg-gray-200 transition focus:outline-none focus:ring-2 focus:ring-blue-200">
                                     <?= strtoupper(substr($current_user['name'], 0, 1)) ?>
                                 </button>
                                 <!-- Dropdown Menu -->

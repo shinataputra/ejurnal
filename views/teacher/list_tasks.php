@@ -106,6 +106,13 @@
         </table>
     </div>
 
+    <!-- Back Button -->
+    <div class="flex gap-3">
+        <a href="?p=teacher/dashboard" class="flex-1 text-center bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition">
+            ← Kembali
+        </a>
+    </div>
+
     <!-- Mobile Card View (hidden on desktop) -->
     <div class="md:hidden space-y-3">
         <?php if (empty($tasks)): ?>

@@ -146,6 +146,7 @@
                                     <th class="border border-gray-300 px-3 py-3 text-left text-sm font-semibold">MAPEL</th>
                                     <th class="border border-gray-300 px-3 py-3 text-left text-sm font-semibold">JAM KE</th>
                                     <th class="border border-gray-300 px-3 py-3 text-left text-sm font-semibold">MATERI</th>
+                                    <th class="border border-gray-300 px-3 py-3 text-left text-sm font-semibold">CATATAN</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -177,6 +178,9 @@
                                         </td>
                                         <td class="border border-gray-300 px-3 py-3 text-sm" data-label="MATERI">
                                             <?= htmlspecialchars($journal['materi']) ?>
+                                        </td>
+                                        <td class="border border-gray-300 px-3 py-3 text-xs text-gray-700" data-label="CATATAN">
+                                            <?= htmlspecialchars($journal['notes'] ?? '-') ?>
                                         </td>
                                     </tr>
                                     <?php $row_number++; ?>

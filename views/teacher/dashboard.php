@@ -84,7 +84,7 @@
                 </div>
                 <div class="flex-1">
                     <h3 class="text-base md:text-lg font-bold">Kirim Tugas Kelas</h3>
-                    <p class="text-xs md:text-sm text-purple-100">Distribusikan tugas ke siswa</p>
+                    <p class="text-xs md:text-sm text-purple-100">Tugas dikirim ke kurikulum untuk diteruskan ke kelas</p>
                 </div>
             </div>
         </a>
