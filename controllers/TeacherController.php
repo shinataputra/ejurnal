@@ -94,14 +94,18 @@ class TeacherController extends Controller
         $this->requireTeacher();
         $current_user = $_SESSION['user'];
         $journals = [];
+        $filter_date = $_GET['date'] ?? date('Y-m-d');  // Default to today
         $activeAY = $this->ayModel->active();
+
         if ($activeAY) {
-            $journals = $this->journalModel->listByAcademicYear($activeAY['start_date'], $activeAY['end_date'], $current_user['id']);
+            $journals = $this->journalModel->listByDateAndAcademicYear($filter_date, $activeAY['start_date'], $activeAY['end_date'], $current_user['id']);
         }
+
         $this->render('teacher/list_journal.php', [
             'current_user' => $current_user,
             'journals' => $journals,
-            'activeAY' => $activeAY
+            'activeAY' => $activeAY,
+            'filter_date' => $filter_date
         ]);
     }
 
