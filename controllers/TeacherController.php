@@ -6,6 +6,7 @@ require_once __DIR__ . '/../models/ClassModel.php';
 require_once __DIR__ . '/../models/Subject.php';
 require_once __DIR__ . '/../models/AcademicYear.php';
 require_once __DIR__ . '/../models/Task.php';
+require_once __DIR__ . '/../models/User.php';
 
 class TeacherController extends Controller
 {
@@ -14,6 +15,7 @@ class TeacherController extends Controller
     protected $subjectModel;
     protected $ayModel;
     protected $taskModel;
+    protected $userModel;
 
     public function __construct()
     {
@@ -22,6 +24,7 @@ class TeacherController extends Controller
         $this->subjectModel = new Subject();
         $this->ayModel = new AcademicYear();
         $this->taskModel = new Task();
+        $this->userModel = new User();
     }
 
     protected function requireTeacher()
@@ -504,5 +507,112 @@ class TeacherController extends Controller
         $this->taskModel->delete($id, $current_user['id']);
         $_SESSION['flash_success'] = 'Tugas dihapus.';
         $this->redirect('index.php?p=teacher/list-tasks');
+    }
+
+    public function changePassword()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $current = $_POST['current_password'] ?? '';
+            $new = $_POST['new_password'] ?? '';
+            $confirm = $_POST['confirm_password'] ?? '';
+
+            if ($new !== $confirm) {
+                $_SESSION['flash_error'] = 'Password baru dan konfirmasi tidak cocok.';
+                $this->redirect('index.php?p=teacher/change-password');
+                return;
+            }
+
+            if (strlen($new) < 6) {
+                $_SESSION['flash_error'] = 'Password minimal 6 karakter.';
+                $this->redirect('index.php?p=teacher/change-password');
+                return;
+            }
+
+            $user = $this->userModel->findById($current_user['id']);
+            if (!$user || !password_verify($current, $user['password'])) {
+                $_SESSION['flash_error'] = 'Password saat ini salah.';
+                $this->redirect('index.php?p=teacher/change-password');
+                return;
+            }
+
+            $hash = password_hash($new, PASSWORD_DEFAULT);
+            $this->userModel->resetPassword($current_user['id'], $hash);
+            $_SESSION['flash_success'] = 'Password berhasil diperbarui.';
+            $this->redirect('index.php?p=teacher/dashboard');
+        }
+
+        $this->render('teacher/change_password.php', [
+            'current_user' => $current_user
+        ]);
+    }
+
+    public function profile()
+    {
+        $this->requireTeacher();
+        $current_user = $_SESSION['user'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // If profile update (name/username/nip)
+            if (isset($_POST['update_profile'])) {
+                $name = trim($_POST['name'] ?? $current_user['name']);
+                $nip = trim($_POST['nip'] ?? '');
+
+                // Preserve username for teacher: they are not allowed to change it here
+                $userRow = $this->userModel->findById($current_user['id']);
+                $username = $userRow['username'] ?? $current_user['username'];
+
+                $this->userModel->update($current_user['id'], [
+                    'name' => $name,
+                    'nip' => $nip,
+                    'username' => $username,
+                    'role' => 'teacher'
+                ]);
+                $_SESSION['user']['name'] = $name;
+                $_SESSION['flash_success'] = 'Profil diperbarui.';
+                $this->redirect('index.php?p=teacher/profile');
+                return;
+            }
+
+            // If password change from profile
+            if (isset($_POST['change_password'])) {
+                $current = $_POST['current_password'] ?? '';
+                $new = $_POST['new_password'] ?? '';
+                $confirm = $_POST['confirm_password'] ?? '';
+
+                if ($new !== $confirm) {
+                    $_SESSION['flash_error'] = 'Password baru dan konfirmasi tidak cocok.';
+                    $this->redirect('index.php?p=teacher/profile');
+                    return;
+                }
+
+                if (strlen($new) < 6) {
+                    $_SESSION['flash_error'] = 'Password minimal 6 karakter.';
+                    $this->redirect('index.php?p=teacher/profile');
+                    return;
+                }
+
+                $user = $this->userModel->findById($current_user['id']);
+                if (!$user || !password_verify($current, $user['password'])) {
+                    $_SESSION['flash_error'] = 'Password saat ini salah.';
+                    $this->redirect('index.php?p=teacher/profile');
+                    return;
+                }
+
+                $hash = password_hash($new, PASSWORD_DEFAULT);
+                $this->userModel->resetPassword($current_user['id'], $hash);
+                $_SESSION['flash_success'] = 'Password berhasil diperbarui.';
+                $this->redirect('index.php?p=teacher/profile');
+                return;
+            }
+        }
+
+        $user = $this->userModel->findById($current_user['id']);
+        $this->render('teacher/profile.php', [
+            'current_user' => $current_user,
+            'user' => $user
+        ]);
     }
 }

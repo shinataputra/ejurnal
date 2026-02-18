@@ -474,4 +474,67 @@ class AdminController extends Controller
             $this->redirect('index.php?p=admin/tasks');
         }
     }
+
+    public function profile()
+    {
+        $this->requireAdmin();
+        $current_user = $_SESSION['user'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_POST['update_profile'])) {
+                $name = trim($_POST['name'] ?? $current_user['name']);
+                $nip = trim($_POST['nip'] ?? '');
+                $username = trim($_POST['username'] ?? $current_user['username']);
+
+                $this->userModel->update($current_user['id'], [
+                    'name' => $name,
+                    'nip' => $nip,
+                    'username' => $username,
+                    'role' => 'admin'
+                ]);
+                $_SESSION['user']['name'] = $name;
+                $_SESSION['user']['username'] = $username;
+                $_SESSION['flash_success'] = 'Profil diperbarui.';
+                $this->redirect('index.php?p=admin/profile');
+                return;
+            }
+
+            if (isset($_POST['change_password'])) {
+                $current = $_POST['current_password'] ?? '';
+                $new = $_POST['new_password'] ?? '';
+                $confirm = $_POST['confirm_password'] ?? '';
+
+                if ($new !== $confirm) {
+                    $_SESSION['flash_error'] = 'Password baru dan konfirmasi tidak cocok.';
+                    $this->redirect('index.php?p=admin/profile');
+                    return;
+                }
+
+                if (strlen($new) < 6) {
+                    $_SESSION['flash_error'] = 'Password minimal 6 karakter.';
+                    $this->redirect('index.php?p=admin/profile');
+                    return;
+                }
+
+                $user = $this->userModel->findById($current_user['id']);
+                if (!$user || !password_verify($current, $user['password'])) {
+                    $_SESSION['flash_error'] = 'Password saat ini salah.';
+                    $this->redirect('index.php?p=admin/profile');
+                    return;
+                }
+
+                $hash = password_hash($new, PASSWORD_DEFAULT);
+                $this->userModel->resetPassword($current_user['id'], $hash);
+                $_SESSION['flash_success'] = 'Password berhasil diperbarui.';
+                $this->redirect('index.php?p=admin/profile');
+                return;
+            }
+        }
+
+        $user = $this->userModel->findById($current_user['id']);
+        $this->render('admin/profile.php', [
+            'current_user' => $current_user,
+            'user' => $user
+        ]);
+    }
 }

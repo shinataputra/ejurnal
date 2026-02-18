@@ -11,8 +11,8 @@ $pdo->exec("INSERT IGNORE INTO users (name,nip,username,password,role) VALUES ('
 $pdo->exec("INSERT IGNORE INTO users (name,nip,username,password,role) VALUES ('Guru Contoh','12345', 'guru1', '$teacherPass', 'teacher')");
 
 // classes and subjects
-$pdo->exec("INSERT IGNORE INTO classes (id,name) VALUES (1,'X-IPA')");
-$pdo->exec("INSERT IGNORE INTO subjects (id,name) VALUES (1,'Matematika')");
+$pdo->exec("INSERT IGNORE INTO classes (id,name) VALUES (1,'X RPL1'), (2,'XI RPL1'), (3,'XII RPL1')");
+$pdo->exec("INSERT IGNORE INTO subjects (id,name) VALUES (1,'Matematika'), (2,'Bahasa Indonesia'), (3,'Bahasa Inggris')");
 
 // academic year
 $today = date('Y-m-d');

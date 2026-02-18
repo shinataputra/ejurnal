@@ -49,7 +49,7 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                                     <img src="<?= htmlspecialchars($logoPath) ?>" alt="Logo" class="h-10 w-10 rounded-full object-cover border border-gray-300 flex-shrink-0">
                                 <?php endif; ?>
                                 <div class="min-w-0">
-                                    <h1 class="text-lg font-bold text-gray-900 truncate">eJurnal</h1>
+                                    <h1 class="text-lg font-bold text-gray-900 truncate"><a href="?p=teacher/dashboard">eJurnal</a></h1>
                                     <p class="text-xs text-gray-500 truncate"><?= htmlspecialchars($schoolName) ?></p>
                                 </div>
                             </div>
@@ -64,8 +64,8 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                                         <p class="text-sm font-semibold text-gray-900 truncate"><?= htmlspecialchars($current_user['name']) ?></p>
                                         <p class="text-xs text-gray-500 capitalize">👨‍🏫 Guru</p>
                                     </div>
-                                    <a href="?p=teacher/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                        📊 Dashboard
+                                    <a href="?p=teacher/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                        👤 Profil
                                     </a>
                                     <a href="?p=logout" class="block px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition border-t border-gray-200 font-semibold">
                                         🚪 Logout
@@ -81,7 +81,7 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                                     <img src="<?= htmlspecialchars($logoPath) ?>" alt="Logo" class="h-12 w-12 rounded-full object-cover border-2 border-gray-200 flex-shrink-0">
                                 <?php endif; ?>
                                 <div class="min-w-0">
-                                    <h1 class="text-2xl font-bold text-gray-900 truncate">eJurnal</h1>
+                                    <h1 class="text-2xl font-bold text-gray-900 truncate"><a href="?p=teacher/dashboard">eJurnal</a></h1>
                                     <p class="text-sm text-gray-500 truncate"><?= htmlspecialchars($schoolName) ?></p>
                                 </div>
                             </div>
@@ -102,8 +102,8 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                                         <p class="text-sm font-semibold text-gray-900"><?= htmlspecialchars($current_user['name']) ?></p>
                                         <p class="text-xs text-gray-500 capitalize">👨‍🏫 Guru</p>
                                     </div>
-                                    <a href="?p=teacher/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                        📊 Dashboard
+                                    <a href="?p=teacher/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                        👤 Profil
                                     </a>
                                     <a href="?p=logout" class="block px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition border-t border-gray-200 font-semibold">
                                         🚪 Logout
@@ -144,7 +144,7 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                             <?php if ($logoPath && file_exists(__DIR__ . '/../' . $logoPath)): ?>
                                 <img src="<?= htmlspecialchars($logoPath) ?>" alt="Logo" class="h-8 w-8 rounded-full object-cover border border-white">
                             <?php endif; ?>
-                            <h2 class="text-xl font-bold">eJurnal</h2>
+                            <h2 class="text-xl font-bold"><a href="?p=admin/dashboard">eJurnal</a></h2>
                         </div>
                         <p class="text-xs text-blue-200"><?= htmlspecialchars($schoolName) ?></p>
                     </div>
@@ -234,7 +234,7 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                                 </svg>
                             </button>
                             <!-- Center: Title -->
-                            <h1 class="text-base font-bold text-gray-900 truncate flex-1 text-center px-2">eJurnal</h1>
+                            <h1 class="text-base font-bold text-gray-900 truncate flex-1 text-center px-2"><a href="?p=admin/dashboard">eJurnal</a></h1>
                             <!-- Right: User Profile Dropdown -->
                             <div class="relative flex-shrink-0">
                                 <button onclick="toggleAdminProfileDropdown()" class="flex items-center justify-center h-9 w-9 rounded-full bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -246,8 +246,8 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                                         <p class="text-sm font-semibold text-gray-900 truncate"><?= htmlspecialchars($current_user['name']) ?></p>
                                         <p class="text-xs text-gray-500 capitalize">👨‍💼 Admin</p>
                                     </div>
-                                    <a href="?p=admin/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
-                                        📊 Dashboard
+                                    <a href="?p=admin/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                        👤 Profil
                                     </a>
                                     <a href="?p=logout" class="block px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition border-t border-gray-200 font-semibold">
                                         🚪 Logout

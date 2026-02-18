@@ -60,19 +60,6 @@
 
     <!-- Action Buttons -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-        <a href="?p=teacher/add" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg p-4 md:p-6 shadow-md transition active:scale-95 md:hover:scale-105 block touch-manipulation">
-            <div class="flex items-center gap-3 md:gap-4">
-                <div class="bg-blue-500 rounded-full p-2 md:p-3 flex-shrink-0">
-                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10.5 1.5H9.25A4.25 4.25 0 005 5.75v8.5A4.25 4.25 0 009.25 18.5h5.5A4.25 4.25 0 0019 14.25v-8.5A4.25 4.25 0 0014.75 1.5h-1.25m-4 6.5a.75.75 0 000 1.5h4a.75.75 0 000-1.5h-4zm0 3a.75.75 0 000 1.5h4a.75.75 0 000-1.5h-4z" clip-rule="evenodd"></path>
-                    </svg>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-base md:text-lg font-bold">Tambah Jurnal</h3>
-                    <p class="text-xs md:text-sm text-blue-100">Catat aktivitas mengajar</p>
-                </div>
-            </div>
-        </a>
 
         <a href="?p=teacher/list" class="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-lg p-4 md:p-6 shadow-md transition active:scale-95 md:hover:scale-105 block touch-manipulation">
             <div class="flex items-center gap-3 md:gap-4">
