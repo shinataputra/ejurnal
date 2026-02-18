@@ -10,17 +10,15 @@
 
     <!-- Year Filter -->
     <div class="bg-white rounded-lg shadow p-4 md:p-6">
-        <form method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+        <form method="GET" class="flex gap-2 items-center">
             <input type="hidden" name="p" value="teacher/rekap-monthly">
-            <div class="flex-1">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Tahun</label>
-                <select name="year" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <?php foreach (array_reverse($yearOptions) as $y): ?>
-                        <option value="<?= $y ?>" <?= $year == $y ? 'selected' : '' ?>><?= $y ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition w-full md:w-auto">
+            <label class="block text-sm font-semibold text-gray-700 whitespace-nowrap">Pilih Tahun</label>
+            <select name="year" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <?php foreach (array_reverse($yearOptions) as $y): ?>
+                    <option value="<?= $y ?>" <?= $year == $y ? 'selected' : '' ?>><?= $y ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition whitespace-nowrap">
                 🔍 Lihat
             </button>
         </form>
@@ -131,10 +129,10 @@
             <?php endforeach; ?>
         </div>
 
-        <!-- Removed separate daily recap link; daily recap is accessible via Lihat Jurnal -->
+        <!-- Back to Journal List -->
         <div class="text-center pt-4">
             <a href="?p=teacher/list" class="text-blue-600 hover:text-blue-800 font-semibold text-sm md:text-base">
-                ← Lihat Jurnal (Rekap Harian tersedia di halaman jurnal)
+                ← Lihat Jurnal
             </a>
         </div>
     <?php endif; ?>

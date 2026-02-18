@@ -8,6 +8,18 @@
         <p class="text-sm md:text-base text-gray-600">Review dan kelola semua jurnal Anda</p>
     </div>
 
+    <!-- Date Filter -->
+    <div class="bg-white rounded-lg shadow p-3 md:p-4">
+        <form method="GET" action="" class="flex gap-2 items-center">
+            <input type="hidden" name="p" value="teacher/list">
+            <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter Tanggal:</label>
+            <input type="date" name="date" value="<?= htmlspecialchars($filter_date) ?>" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
+            <button type="submit" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition text-sm whitespace-nowrap">
+                Filter
+            </button>
+        </form>
+    </div>
+
     <!-- Academic Year Info -->
     <?php if ($activeAY): ?>
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 md:p-4 text-sm md:text-base">
@@ -32,10 +44,7 @@
                 </svg>
             </div>
             <h3 class="text-base md:text-lg font-semibold text-gray-900 mb-1 md:mb-2">Belum ada jurnal</h3>
-            <p class="text-xs md:text-sm text-gray-600 mb-4 md:mb-6">Mulai catat jurnal mengajar Anda sekarang</p>
-            <a href="?p=teacher/add" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 md:py-2 md:px-6 text-sm md:text-base rounded-lg transition">
-                + Tambah Jurnal
-            </a>
+            <p class="text-xs md:text-sm text-gray-600">Tidak ada jurnal untuk tanggal yang dipilih. Coba ubah filter tanggal atau tambah jurnal baru.</p>
         </div>
     <?php else: ?>
         <!-- Journal Cards -->

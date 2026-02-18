@@ -9,4 +9,9 @@ class Model
     {
         $this->db = db();
     }
+
+    public function getDb()
+    {
+        return $this->db;
+    }
 }

@@ -119,4 +119,28 @@
             </a>
         </div>
     </div>
+
+    <!-- Reports Section -->
+    <div>
+        <h2 class="text-xl font-bold text-gray-900 mb-4">📊 Rekap & Laporan</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Recap by Class -->
+            <a href="?p=admin/rekap-by-class" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-4 flex items-center gap-3 transition">
+                <div class="text-2xl">🎓</div>
+                <div>
+                    <p class="font-semibold">Rekap Per Kelas</p>
+                    <p class="text-xs text-blue-200">Rekap jurnal berdasarkan kelas</p>
+                </div>
+            </a>
+
+            <!-- Recap by Teacher -->
+            <a href="?p=admin/rekap-by-teacher" class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-4 flex items-center gap-3 transition">
+                <div class="text-2xl">👥</div>
+                <div>
+                    <p class="font-semibold">Rekap Per Guru</p>
+                    <p class="text-xs text-green-200">Rekap jurnal berdasarkan guru</p>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>

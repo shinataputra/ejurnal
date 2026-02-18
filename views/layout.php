@@ -201,6 +201,12 @@ $isLoginPage = isset($requestedView) && strpos($requestedView, 'auth/login.php')
                                     </a>
                                 </div>
                                 <div class="pt-2 border-t border-blue-600">
+                                    <p class="px-4 py-2 text-xs font-semibold text-blue-300 uppercase">Rekap & Laporan</p>
+                                    <a href="?p=admin/rekap" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                        📊 Rekap Jurnal
+                                    </a>
+                                </div>
+                                <div class="pt-2 border-t border-blue-600">
                                     <a href="?p=admin/settings" class="block px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
                                         ⚙️ Pengaturan Sekolah
                                     </a>

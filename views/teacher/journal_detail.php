@@ -78,7 +78,7 @@ $formattedDate = date('d F Y', strtotime($journal['date']));
                 🗑️ Hapus
             </button>
             <a
-                href="?p=teacher/list_journal"
+                href="?p=teacher/list"
                 class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 md:py-3 text-sm md:text-base rounded-lg transition text-center">
                 ← Kembali
             </a>
