@@ -7,6 +7,7 @@ require_once __DIR__ . '/../models/Subject.php';
 require_once __DIR__ . '/../models/AcademicYear.php';
 require_once __DIR__ . '/../models/Settings.php';
 require_once __DIR__ . '/../models/Task.php';
+require_once __DIR__ . '/../models/Journal.php';
 
 class AdminController extends Controller
 {
@@ -16,6 +17,7 @@ class AdminController extends Controller
     protected $ayModel;
     protected $settingsModel;
     protected $taskModel;
+    protected $journalModel;
 
     public function __construct()
     {
@@ -25,6 +27,7 @@ class AdminController extends Controller
         $this->ayModel = new AcademicYear();
         $this->settingsModel = new Settings();
         $this->taskModel = new Task();
+        $this->journalModel = new Journal();
     }
 
     protected function requireAdmin()
@@ -535,6 +538,266 @@ class AdminController extends Controller
         $this->render('admin/profile.php', [
             'current_user' => $current_user,
             'user' => $user
+        ]);
+    }
+
+    public function rekap()
+    {
+        $this->requireAdmin();
+        $this->render('admin/rekap.php', ['current_user' => $_SESSION['user']]);
+    }
+
+    public function rekapByClass()
+    {
+        $this->requireAdmin();
+        $year = $_GET['year'] ?? date('Y');
+        $month = $_GET['month'] ?? date('m');
+        $class_id = $_GET['class_id'] ?? null;
+
+        $yearOptions = [];
+        for ($i = 2020; $i <= date('Y'); $i++) {
+            $yearOptions[] = $i;
+        }
+
+        $monthNames = [
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember'
+        ];
+
+        // Get all classes for dropdown
+        $classes = $this->classModel->all();
+
+        // Get weekly recap data if class is selected
+        $weeklyData = [];
+        if ($class_id) {
+            $journals = $this->journalModel->getWeeklyRekapByClass($class_id, $month, $year);
+            // Organize by week
+            $weeklyData = [];
+            foreach ($journals as $j) {
+                $week_key = $j['week_start'] . ' - ' . $j['week_end'];
+                if (!isset($weeklyData[$week_key])) {
+                    $weeklyData[$week_key] = [];
+                }
+                $weeklyData[$week_key][] = $j;
+            }
+        }
+
+        $this->render('admin/rekap_by_class.php', [
+            'current_user' => $_SESSION['user'],
+            'weeklyData' => $weeklyData,
+            'classes' => $classes,
+            'year' => $year,
+            'month' => $month,
+            'class_id' => $class_id,
+            'yearOptions' => $yearOptions,
+            'monthNames' => $monthNames
+        ]);
+    }
+
+    public function rekapByTeacher()
+    {
+        $this->requireAdmin();
+        $year = $_GET['year'] ?? date('Y');
+        $month = $_GET['month'] ?? date('m');
+        $teacher_id = $_GET['teacher_id'] ?? null;
+
+        $yearOptions = [];
+        for ($i = 2020; $i <= date('Y'); $i++) {
+            $yearOptions[] = $i;
+        }
+
+        $monthNames = [
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember'
+        ];
+
+        // Get all teachers for dropdown
+        $stmt = $this->userModel->getDb()->query("SELECT id, name, username FROM users WHERE role = 'teacher' ORDER BY name ASC");
+        $teachers = $stmt->fetchAll();
+
+        // Get weekly recap data if teacher is selected
+        $weeklyData = [];
+        if ($teacher_id) {
+            $journals = $this->journalModel->getWeeklyRekapByTeacher($teacher_id, $month, $year);
+            // Organize by week
+            $weeklyData = [];
+            foreach ($journals as $j) {
+                $week_key = $j['week_start'] . ' - ' . $j['week_end'];
+                if (!isset($weeklyData[$week_key])) {
+                    $weeklyData[$week_key] = [];
+                }
+                $weeklyData[$week_key][] = $j;
+            }
+        }
+
+        $this->render('admin/rekap_by_teacher.php', [
+            'current_user' => $_SESSION['user'],
+            'weeklyData' => $weeklyData,
+            'teachers' => $teachers,
+            'year' => $year,
+            'month' => $month,
+            'teacher_id' => $teacher_id,
+            'yearOptions' => $yearOptions,
+            'monthNames' => $monthNames
+        ]);
+    }
+
+    public function rekapPrintClass()
+    {
+        $this->requireAdmin();
+        $month_year = $_GET['month_year'] ?? date('m-Y');
+        $class_id = $_GET['class_id'] ?? null;
+
+        $parts = explode('-', $month_year);
+        $month = $parts[0] ?? date('m');
+        $year = $parts[1] ?? date('Y');
+
+        // Get journals for month and optional class
+        if ($class_id) {
+            $journals = $this->journalModel->getJournalsByMonthAndClass($month, $year, $class_id);
+            $class = $this->classModel->findById($class_id);
+            $class_name = $class ? $class['name'] : 'Unknown';
+        } else {
+            $journals = $this->journalModel->getJournalsByMonthAllUsers($month, $year);
+            $class_name = 'Semua Kelas';
+        }
+
+        $monthNames = [
+            'Januari',
+            'Februari',
+            'Maret',
+            'April',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agustus',
+            'September',
+            'Oktober',
+            'November',
+            'Desember'
+        ];
+        $month_display = $monthNames[(int)$month - 1] . ' ' . $year;
+
+        // Check for dompdf
+        $vendor = __DIR__ . '/../vendor/autoload.php';
+        if (file_exists($vendor) && isset($_GET['pdf'])) {
+            require_once $vendor;
+            try {
+                ob_start();
+                include __DIR__ . '/../views/admin/rekap_print_class_pdf.php';
+                $html = ob_get_clean();
+
+                $options = new \Dompdf\Options();
+                $options->set('isRemoteEnabled', false);
+                $dompdf = new \Dompdf\Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+
+                $filename = 'recap_kelas_' . ($month . '_' . $year) . '.pdf';
+                $dompdf->stream($filename, ['Attachment' => 0]);
+                exit;
+            } catch (\Exception $e) {
+                // fallback to HTML
+            }
+        }
+
+        $this->render('admin/rekap_print_class.php', [
+            'current_user' => $_SESSION['user'],
+            'journals' => $journals,
+            'class_name' => $class_name,
+            'month_year' => $month_year,
+            'month' => $month,
+            'year' => $year,
+            'month_display' => $month_display
+        ]);
+    }
+
+    public function rekapPrintTeacher()
+    {
+        $this->requireAdmin();
+        $user_id = $_GET['user_id'] ?? 0;
+        $month_year = $_GET['month_year'] ?? date('m-Y');
+
+        $user = $this->userModel->findById($user_id);
+        if (!$user || $user['role'] !== 'teacher') {
+            $_SESSION['flash_error'] = 'Guru tidak ditemukan.';
+            $this->redirect('index.php?p=admin/recap-by-teacher');
+            return;
+        }
+
+        $parts = explode('-', $month_year);
+        $month = $parts[0] ?? date('m');
+        $year = $parts[1] ?? date('Y');
+
+        $journals = $this->journalModel->getJournalsByMonthAndUser($user_id, $month_year);
+
+        $monthNames = [
+            'Januari',
+            'Februari',
+            'Maret',
+            'April',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agustus',
+            'September',
+            'Oktober',
+            'November',
+            'Desember'
+        ];
+        $month_display = $monthNames[(int)$month - 1] . ' ' . $year;
+
+        // Check for dompdf
+        $vendor = __DIR__ . '/../vendor/autoload.php';
+        if (file_exists($vendor) && isset($_GET['pdf'])) {
+            require_once $vendor;
+            try {
+                ob_start();
+                include __DIR__ . '/../views/admin/rekap_print_teacher_pdf.php';
+                $html = ob_get_clean();
+
+                $options = new \Dompdf\Options();
+                $options->set('isRemoteEnabled', false);
+                $dompdf = new \Dompdf\Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+
+                $filename = 'recap_guru_' . ($user['username'] ?? 'guru') . '_' . ($month . '_' . $year) . '.pdf';
+                $dompdf->stream($filename, ['Attachment' => 0]);
+                exit;
+            } catch (\Exception $e) {
+                // fallback to HTML
+            }
+        }
+
+        $this->render('admin/rekap_print_teacher.php', [
+            'current_user' => $_SESSION['user'],
+            'user' => $user,
+            'journals' => $journals,
+            'month_year' => $month_year,
+            'month_display' => $month_display
         ]);
     }
 }
