@@ -223,7 +223,9 @@ class TeacherController extends Controller
                 // Render minimal HTML for PDF using a dedicated view
                 $month_display_local = $month_display; // local alias for view
                 $journals_local = $journals;
-                $current_user_local = $current_user;
+                // Ensure we pass fresh user row (includes NIP) to the PDF view
+                $userRow = $this->userModel->findById($current_user['id']);
+                $current_user_local = $userRow ? $userRow : $current_user;
 
                 ob_start();
                 include __DIR__ . '/../views/teacher/rekap_pdf.php';
@@ -603,6 +605,7 @@ class TeacherController extends Controller
                     'role' => 'teacher'
                 ]);
                 $_SESSION['user']['name'] = $name;
+                $_SESSION['user']['nip'] = $nip;
                 $_SESSION['flash_success'] = 'Profil diperbarui.';
                 $this->redirect('index.php?p=teacher/profile');
                 return;

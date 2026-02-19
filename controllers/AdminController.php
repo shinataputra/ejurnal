@@ -562,6 +562,7 @@ class AdminController extends Controller
                 ]);
                 $_SESSION['user']['name'] = $name;
                 $_SESSION['user']['username'] = $username;
+                $_SESSION['user']['nip'] = $nip;
                 $_SESSION['flash_success'] = 'Profil diperbarui.';
                 $this->redirect('index.php?p=admin/profile');
                 return;

@@ -19,7 +19,8 @@ $schoolName = isset($settingsModel)
         /* === HALAMAN === */
         @page {
             size: A4 portrait;
-            margin: 2cm;
+            margin: 1.5cm 2cm 2cm 2cm;
+            /* top right bottom left */
         }
 
         body {
@@ -127,30 +128,44 @@ $schoolName = isset($settingsModel)
 
         /* === TTD === */
         .footer {
-            margin-top: 35px;
+            margin-top: 20px;
             text-align: right;
             page-break-inside: avoid;
         }
 
         .ttd-box {
             display: inline-block;
-            text-align: center;
-            min-width: 250px;
+            text-align: left;
+            /* name and NIP left-aligned */
+            min-width: 220px;
         }
 
         .ttd-box .tanggal {
             font-size: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 6px;
+            /* closer to jabatan */
         }
 
         .ttd-box .jabatan {
-            font-size: 9px;
-            margin-bottom: 40px;
+            font-size: 10px;
+            margin-bottom: 20px;
+            /* increase gap between jabatan and name */
+            font-weight: 600;
         }
 
         .ttd-box .nama {
             font-size: 10px;
             text-decoration: underline;
+            margin-bottom: 1px;
+            /* keep name and NIP close */
+            display: block;
+        }
+
+        .ttd-box .nip {
+            font-size: 10px;
+            color: #000;
+            margin-top: 2px;
+            /* slight spacing from name */
         }
     </style>
 </head>
@@ -162,7 +177,8 @@ $schoolName = isset($settingsModel)
         <div class="kop-surat">
             <div class="sekolah"><?= htmlspecialchars($schoolName) ?></div>
             <div class="alamat">
-                Jl. Mayjen Panjaitan No. 106, Probolinggo, Jawa Timur 67214
+                Jalan Mastrip Nomor 357, Telepon (0335) 421121 Probolinggo (67239)<br>
+                Laman: smkn1probolinggo.sch.id &nbsp; Pos-el: smkn1_probolinggo@yahoo.co.id
             </div>
         </div>
 
@@ -176,7 +192,6 @@ $schoolName = isset($settingsModel)
             <div><span class="info-label">Nama Guru</span>: <?= htmlspecialchars($current_user_local['name'] ?? '-') ?></div>
             <div><span class="info-label">NIP</span>: <?= htmlspecialchars($current_user_local['nip'] ?? '-') ?></div>
             <div><span class="info-label">Periode</span>: <?= htmlspecialchars($month_display_local ?? '-') ?></div>
-            <div><span class="info-label">Tanggal Cetak</span>: <?= date('d F Y') ?></div>
         </div>
 
         <?php if (empty($journals_local)): ?>
@@ -190,10 +205,11 @@ $schoolName = isset($settingsModel)
                 <thead>
                     <tr>
                         <th style="width:4%">No</th>
-                        <th style="width:13%">Tanggal</th>
-                        <th style="width:12%">Kelas</th>
-                        <th style="width:12%">Mapel</th>
+                        <th style="width:11%">Tanggal</th>
+                        <th style="width:10%">Kelas</th>
                         <th style="width:7%">Jam</th>
+                        <th style="width:16%">Mapel</th>
+
                         <th style="width:28%">Materi</th>
                         <th style="width:24%">Catatan</th>
                     </tr>
@@ -204,9 +220,10 @@ $schoolName = isset($settingsModel)
                         <tr>
                             <td class="center"><?= $i++ ?></td>
                             <td class="center"><?= date('d/m/Y', strtotime($j['date'])) ?></td>
-                            <td><?= htmlspecialchars(str_replace('-', ' ', $j['class_name'])) ?></td>
-                            <td><?= htmlspecialchars($j['subject_name']) ?></td>
+                            <td class="center"><?= htmlspecialchars(str_replace('-', ' ', $j['class_name'])) ?></td>
                             <td class="center"><?= htmlspecialchars($j['jam_ke']) ?></td>
+                            <td><?= htmlspecialchars($j['subject_name']) ?></td>
+
                             <td class="materi-cell"><?= htmlspecialchars($j['materi'] ?? '-') ?></td>
                             <td class="catatan-cell"><?= htmlspecialchars($j['notes'] ?? '-') ?></td>
                         </tr>
@@ -224,6 +241,7 @@ $schoolName = isset($settingsModel)
                     <div class="tanggal">Probolinggo, <?= $tgl ?></div>
                     <div class="jabatan">Guru Pengajar</div>
                     <div class="nama"><?= htmlspecialchars($current_user_local['name'] ?? '') ?></div>
+                    <div class="nip">NIP: <?= htmlspecialchars($current_user_local['nip'] ?? '-') ?></div>
                 </div>
             </div>
 

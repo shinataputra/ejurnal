@@ -23,7 +23,8 @@ class AuthController extends Controller
                     'id' => $u['id'],
                     'name' => $u['name'],
                     'role' => $u['role'],
-                    'username' => $u['username']
+                    'username' => $u['username'],
+                    'nip' => $u['nip'] ?? ''
                 ];
                 if ($u['role'] === 'admin') {
                     $this->redirect('index.php?p=admin/dashboard');
