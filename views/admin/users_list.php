@@ -19,15 +19,53 @@
         </div>
     <?php endif; ?>
 
-    <!-- Add Button -->
-    <a href="?p=admin/usersAdd" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
-        ➕ Tambah Guru
-    </a>
+    <!-- Search and Add Button Row -->
+    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+        <!-- Search Form -->
+        <form method="GET" class="flex-1 w-full">
+            <input type="hidden" name="p" value="admin/users">
+            <div class="flex gap-2">
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Cari nama guru..."
+                    value="<?= htmlspecialchars($search) ?>"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+                    🔍 Cari
+                </button>
+                <?php if (!empty($search)): ?>
+                    <a href="?p=admin/users" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition">
+                        ✕ Reset
+                    </a>
+                <?php endif; ?>
+            </div>
+        </form>
+
+        <!-- Add Button -->
+        <a href="?p=admin/usersAdd" class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition whitespace-nowrap">
+            ➕ Tambah Guru
+        </a>
+    </div>
+
+    <!-- Result Info -->
+    <div class="text-sm text-gray-600">
+        Menampilkan <strong><?= count($teachers) ?></strong> dari <strong><?= $total ?></strong> guru
+        <?php if (!empty($search)): ?>
+            (hasil pencarian: "<?= htmlspecialchars($search) ?>")
+        <?php endif; ?>
+    </div>
 
     <!-- Teachers Table/Cards -->
     <?php if (empty($teachers)): ?>
         <div class="bg-white rounded-lg shadow p-12 text-center">
-            <p class="text-gray-600 text-lg">Belum ada guru terdaftar</p>
+            <p class="text-gray-600 text-lg">
+                <?php if (!empty($search)): ?>
+                    Tidak ada guru dengan nama "<?= htmlspecialchars($search) ?>"
+                <?php else: ?>
+                    Belum ada guru terdaftar
+                <?php endif; ?>
+            </p>
         </div>
     <?php else: ?>
         <!-- Desktop Table -->
@@ -87,5 +125,52 @@
                 </div>
             <?php endforeach; ?>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+            <div class="flex justify-center items-center gap-2 mt-6">
+                <?php if ($page > 1): ?>
+                    <a href="?p=admin/users&page=1<?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+                        ⬅️ Awal
+                    </a>
+                    <a href="?p=admin/users&page=<?= $page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+                        ◀ Sebelumnya
+                    </a>
+                <?php endif; ?>
+
+                <div class="flex gap-1">
+                    <?php
+                    $start = max(1, $page - 2);
+                    $end = min($total_pages, $page + 2);
+
+                    if ($start > 1): ?>
+                        <span class="px-3 py-2">...</span>
+                        <?php endif;
+
+                    for ($i = $start; $i <= $end; $i++):
+                        if ($i === $page): ?>
+                            <span class="px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold"><?= $i ?></span>
+                        <?php else: ?>
+                            <a href="?p=admin/users&page=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+                                <?= $i ?>
+                            </a>
+                        <?php endif;
+                    endfor;
+
+                    if ($end < $total_pages): ?>
+                        <span class="px-3 py-2">...</span>
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($page < $total_pages): ?>
+                    <a href="?p=admin/users&page=<?= $page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+                        Selanjutnya ▶
+                    </a>
+                    <a href="?p=admin/users&page=<?= $total_pages ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+                        Akhir ⬇️
+                    </a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 </div>

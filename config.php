@@ -1,6 +1,9 @@
 <?php
 // config.php
 
+// Set timezone to Indonesia (Asia/Jakarta)
+date_default_timezone_set('Asia/Jakarta');
+
 $config = [
     'db' => [
         'host' => 'shared-mysql',

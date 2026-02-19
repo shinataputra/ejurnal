@@ -4,8 +4,8 @@
 <div class="space-y-4 md:space-y-6">
     <!-- Welcome Header -->
     <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg p-4 md:p-8 shadow-lg">
-        <h1 class="text-xl md:text-3xl font-bold mb-1 md:mb-2 break-words">Selamat Datang, <?= htmlspecialchars($current_user['name'] ?? 'Guru') ?>!</h1>
-        <p class="text-sm md:text-base text-blue-100">Kelola jurnal mengajar Anda dengan mudah</p>
+        <h1 class="text-base sm:text-lg md:text-2xl lg:text-3xl font-bold mb-1 md:mb-2 break-words leading-snug">Halo, <?= htmlspecialchars($current_user['name'] ?? 'Guru') ?>!</h1>
+        <p class="text-xs sm:text-sm md:text-base text-blue-100">Kelola jurnal mengajar Anda dengan mudah</p>
     </div>
 
     <!-- Success Message -->

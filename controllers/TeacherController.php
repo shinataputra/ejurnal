@@ -154,7 +154,7 @@ class TeacherController extends Controller
         $year = $_GET['year'] ?? ($activeAY ? date('Y', strtotime($activeAY['start_date'])) : date('Y'));
 
         $yearOptions = [];
-        for ($i = 2020; $i <= date('Y'); $i++) {
+        for ($i = 2025; $i <= date('Y'); $i++) {
             $yearOptions[] = $i;
         }
 

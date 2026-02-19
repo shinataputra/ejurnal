@@ -98,8 +98,23 @@ class AdminController extends Controller
     public function users()
     {
         $this->requireAdmin();
-        $teachers = $this->userModel->allTeachers();
-        $this->render('admin/users_list.php', ['teachers' => $teachers, 'current_user' => $_SESSION['user']]);
+        $limit = 25;
+        $search = trim($_GET['search'] ?? '');
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $offset = ($page - 1) * $limit;
+
+        $total = $this->userModel->countTeachers($search);
+        $teachers = $this->userModel->getTeachersPage($limit, $offset, $search);
+        $total_pages = ceil($total / $limit);
+
+        $this->render('admin/users_list.php', [
+            'teachers' => $teachers,
+            'current_user' => $_SESSION['user'],
+            'search' => $search,
+            'page' => $page,
+            'total_pages' => $total_pages,
+            'total' => $total
+        ]);
     }
 
     public function usersAdd()
@@ -605,7 +620,7 @@ class AdminController extends Controller
         $class_id = $_GET['class_id'] ?? null;
 
         $yearOptions = [];
-        for ($i = 2020; $i <= date('Y'); $i++) {
+        for ($i = 2025; $i <= date('Y'); $i++) {
             $yearOptions[] = $i;
         }
 
@@ -662,7 +677,7 @@ class AdminController extends Controller
         $teacher_id = $_GET['teacher_id'] ?? null;
 
         $yearOptions = [];
-        for ($i = 2020; $i <= date('Y'); $i++) {
+        for ($i = 2025; $i <= date('Y'); $i++) {
             $yearOptions[] = $i;
         }
 

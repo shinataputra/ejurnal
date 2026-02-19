@@ -9,7 +9,7 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <!-- Total Teachers Card -->
         <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6 shadow">
             <div class="flex items-start justify-between">
@@ -44,92 +44,94 @@
         </div>
     </div>
 
-    <!-- Extended Statistics and Lists -->
-    <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <!-- Tasks summary -->
-        <div class="col-span-1 lg:col-span-1 bg-white border rounded-lg p-4 shadow">
-            <h3 class="font-semibold mb-3">Ringkasan Tugas</h3>
-            <ul class="space-y-2 text-sm">
-                <li><strong>Menunggu:</strong> <?php echo intval($pending_count ?? 0); ?></li>
-                <li><strong>Terverifikasi:</strong> <?php echo intval($verified_count ?? 0); ?></li>
-                <li><strong>Ditolak:</strong> <?php echo intval($rejected_count ?? 0); ?></li>
-            </ul>
+    <!-- Extended Statistics and Lists (improved visual accents, reduced icons) -->
+    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+        <!-- Tasks summary (accent left) -->
+        <div class="col-span-1 lg:col-span-1 bg-white border rounded-lg p-0 shadow overflow-hidden">
+            <div class="flex">
+                <div class="w-1 bg-yellow-400"></div>
+                <div class="p-4 flex-1">
+                    <h3 class="font-semibold text-gray-700">Ringkasan Tugas</h3>
+                    <div class="mt-3 flex items-center gap-4">
+                        <div>
+                            <div class="text-2xl font-bold text-gray-900"><?php echo intval($pending_count ?? 0); ?></div>
+                            <div class="text-xs text-gray-500">Menunggu</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-700"><?php echo intval($verified_count ?? 0); ?></div>
+                            <div class="text-xs text-gray-500">Terverifikasi</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-red-600"><?php echo intval($rejected_count ?? 0); ?></div>
+                            <div class="text-xs text-gray-500">Ditolak</div>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-sm text-gray-600">Menunjukkan status tugas yang dikumpulkan oleh guru pada periode berjalan.</p>
+                </div>
+            </div>
         </div>
 
-        <!-- Journals summary -->
-        <div class="col-span-1 lg:col-span-1 bg-white border rounded-lg p-4 shadow">
-            <h3 class="font-semibold mb-3">Ringkasan Jurnal</h3>
-            <p class="text-sm"><strong>Total entri:</strong> <?php echo intval($total_journals ?? 0); ?></p>
-            <p class="text-sm"><strong>Bulan ini:</strong> <?php echo intval($journals_this_month ?? 0); ?></p>
-            <h4 class="mt-3 font-semibold">Top Guru (Bulan ini)</h4>
-            <ol class="text-sm mt-2 space-y-1">
-                <?php if (!empty($top_teachers)): foreach ($top_teachers as $t): ?>
-                        <li><?php echo htmlspecialchars($t['name']); ?> — <span class="text-xs text-gray-600"><?php echo intval($t['total_entries']); ?> entri</span></li>
-                    <?php endforeach;
-                else: ?>
-                    <li class="text-xs text-gray-500">Belum ada data.</li>
-                <?php endif; ?>
-            </ol>
+        <!-- Journals summary (accent left) -->
+        <div class="col-span-1 lg:col-span-1 bg-white border rounded-lg p-0 shadow overflow-hidden">
+            <div class="flex">
+                <div class="w-1 bg-indigo-400"></div>
+                <div class="p-4 flex-1">
+                    <h3 class="font-semibold text-gray-700">Ringkasan Jurnal</h3>
+                    <div class="mt-3 grid grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-2xl font-bold text-indigo-900"><?php echo intval($total_journals ?? 0); ?></div>
+                            <div class="text-xs text-gray-500">Total entri</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-indigo-700"><?php echo intval($journals_this_month ?? 0); ?></div>
+                            <div class="text-xs text-gray-500">Bulan ini</div>
+                        </div>
+                    </div>
+                    <h4 class="mt-3 font-semibold text-gray-700">Top Guru (Bulan ini)</h4>
+                    <ol class="text-sm mt-2 space-y-1">
+                        <?php if (!empty($top_teachers)): foreach ($top_teachers as $t): ?>
+                                <li class="flex justify-between"><span><?php echo htmlspecialchars($t['name']); ?></span><span class="text-xs text-gray-600"><?php echo intval($t['total_entries']); ?> entri</span></li>
+                            <?php endforeach;
+                        else: ?>
+                            <li class="text-xs text-gray-500">Belum ada data.</li>
+                        <?php endif; ?>
+                    </ol>
+                    <p class="mt-3 text-sm text-gray-600">Data hanya menampilkan entri pada bulan berjalan (<?php echo date('F Y'); ?>).</p>
+                </div>
+            </div>
         </div>
 
-        <!-- Recent activity -->
-        <div class="col-span-1 lg:col-span-1 bg-white border rounded-lg p-4 shadow">
-            <h3 class="font-semibold mb-3">Aktivitas Terbaru</h3>
-            <div class="text-sm">
-                <p class="font-semibold">Jurnal Terbaru</p>
-                <ul class="mt-2 space-y-1">
-                    <?php if (!empty($recent_journals)): foreach ($recent_journals as $rj): ?>
-                            <li class="text-xs"><strong><?php echo htmlspecialchars($rj['teacher_name']); ?></strong> — <?php echo htmlspecialchars($rj['class_name']); ?> — <?php echo htmlspecialchars($rj['date']); ?></li>
-                        <?php endforeach;
-                    else: ?>
-                        <li class="text-xs text-gray-500">Tidak ada jurnal.</li>
-                    <?php endif; ?>
-                </ul>
+        <!-- Recent activity (accent left) -->
+        <div class="col-span-1 lg:col-span-1 bg-white border rounded-lg p-0 shadow overflow-hidden">
+            <div class="flex">
+                <div class="w-1 bg-green-400"></div>
+                <div class="p-4 flex-1">
+                    <h3 class="font-semibold text-gray-700">Aktivitas Terbaru</h3>
+                    <div class="mt-3 text-sm">
+                        <p class="font-semibold">Jurnal Terbaru</p>
+                        <ul class="mt-2 space-y-1">
+                            <?php if (!empty($recent_journals)): foreach ($recent_journals as $rj): ?>
+                                    <li class="text-xs flex justify-between"><span><?php echo htmlspecialchars($rj['teacher_name']); ?> — <?php echo htmlspecialchars($rj['class_name']); ?></span><span class="text-gray-600"><?php echo htmlspecialchars($rj['date']); ?></span></li>
+                                <?php endforeach;
+                            else: ?>
+                                <li class="text-xs text-gray-500">Tidak ada jurnal.</li>
+                            <?php endif; ?>
+                        </ul>
 
-                <p class="font-semibold mt-3">Tugas Terbaru</p>
-                <ul class="mt-2 space-y-1">
-                    <?php if (!empty($recent_tasks)): foreach ($recent_tasks as $rt): ?>
-                            <li class="text-xs"><strong><?php echo htmlspecialchars($rt['teacher_name']); ?></strong> — <?php echo htmlspecialchars($rt['class_name']); ?> — <span class="text-gray-600"><?php echo htmlspecialchars($rt['status']); ?></span></li>
-                        <?php endforeach;
-                    else: ?>
-                        <li class="text-xs text-gray-500">Tidak ada tugas.</li>
-                    <?php endif; ?>
-                </ul>
+                        <p class="font-semibold mt-3">Tugas Terbaru</p>
+                        <ul class="mt-2 space-y-1">
+                            <?php if (!empty($recent_tasks)): foreach ($recent_tasks as $rt): ?>
+                                    <li class="text-xs flex justify-between"><span><?php echo htmlspecialchars($rt['teacher_name']); ?> — <?php echo htmlspecialchars($rt['class_name']); ?></span><span class="text-gray-600"><?php echo htmlspecialchars($rt['status']); ?></span></li>
+                                <?php endforeach;
+                            else: ?>
+                                <li class="text-xs text-gray-500">Tidak ada tugas.</li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Per-class recap table -->
-    <div class="mt-6 bg-white border rounded-lg p-4 shadow">
-        <h3 class="font-semibold mb-3">Rekap Per Kelas (<?php echo date('F Y'); ?>)</h3>
-        <div class="overflow-auto">
-            <table class="w-full text-sm table-auto">
-                <thead>
-                    <tr class="text-left text-xs text-gray-600">
-                        <th class="px-2 py-1">Kelas</th>
-                        <th class="px-2 py-1">Entri</th>
-                        <th class="px-2 py-1">Guru</th>
-                        <th class="px-2 py-1">Hari Terisi</th>
-                        <th class="px-2 py-1">Mapel</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($class_recap)): foreach ($class_recap as $c): ?>
-                            <tr>
-                                <td class="px-2 py-1"><?php echo htmlspecialchars($c['class_name']); ?></td>
-                                <td class="px-2 py-1"><?php echo intval($c['total_entries']); ?></td>
-                                <td class="px-2 py-1"><?php echo intval($c['total_teachers']); ?></td>
-                                <td class="px-2 py-1"><?php echo intval($c['days_filled']); ?></td>
-                                <td class="px-2 py-1"><?php echo htmlspecialchars($c['subjects_covered']); ?></td>
-                            </tr>
-                        <?php endforeach;
-                    else: ?>
-                        <tr>
-                            <td class="px-2 py-1 text-xs text-gray-500" colspan="5">Tidak ada data rekap.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <!-- Per-class recap removed as requested; dashboard cards now adapt to content width -->
 </div>

@@ -24,6 +24,33 @@ class User extends Model
         return $stmt->fetchAll();
     }
 
+    public function countTeachers($search = '')
+    {
+        if (!empty($search)) {
+            $stmt = $this->db->prepare("SELECT COUNT(*) as c FROM users WHERE role='teacher' AND name LIKE :search");
+            $stmt->execute([':search' => '%' . $search . '%']);
+        } else {
+            $stmt = $this->db->query("SELECT COUNT(*) as c FROM users WHERE role='teacher'");
+        }
+        return (int)$stmt->fetch()['c'];
+    }
+
+    public function getTeachersPage($limit = 25, $offset = 0, $search = '')
+    {
+        if (!empty($search)) {
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE role='teacher' AND name LIKE :search ORDER BY name LIMIT :limit OFFSET :offset");
+            $stmt->bindValue(':search', '%' . $search . '%');
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        } else {
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE role='teacher' ORDER BY name LIMIT :limit OFFSET :offset");
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
     public function create($data)
     {
         $stmt = $this->db->prepare('INSERT INTO users (name,nip,username,password,role) VALUES (:name,:nip,:username,:password,:role)');
