@@ -6,7 +6,7 @@ services:
     container_name: ejurnal-app
     restart: unless-stopped
     ports:
-      - "8081:80"
+      - "8383:80"
     volumes:
       - ./:/var/www/html
     # Ensure Composer runs inside the container on start to install PHP deps
