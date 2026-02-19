@@ -4,17 +4,28 @@ Aplikasi web untuk manajemen jurnal mengajar guru dengan fitur admin dashboard, 
 
 **Dikembangkan oleh:** ICT - SMKN 1 PROBOLINGGO
 
+**Versi:** 2.1 (Enhanced Dashboard & PDF Improvements)
+
 ---
+
+## 🆕 Update Terbaru (v2.1)
+
+- **Dashboard Admin Redesigned** - Masonry layout responsif dengan data density tinggi, professional UI tanpa dekorasi berlebih
+- **Paginasi Pengguna** - Tampilkan 25 guru per halaman dengan navigasi intuitif
+- **Pencarian Pengguna** - Cari guru berdasarkan nama secara real-time
+- **PDF Improvements** - Kop surat baru, NIP ditampilkan penuh, spacing profesional pada tanda tangan, margin top 1.5cm
+- **Jenjang Kelas** - Otomatis mengenali dan mengelompokkan kelas per jenjang (X, XI, XII)
 
 ## 📋 Daftar Isi
 
+- [Update Terbaru](#-update-terbaru-v21)
 - [Persyaratan Sistem](#persyaratan-sistem)
 - [Instalasi](#instalasi)
 - [Konfigurasi](#konfigurasi)
 - [Menjalankan Aplikasi](#menjalankan-aplikasi)
-- [Fitur](#fitur)
+- [Fitur Utama](#-fitur-utama)
 - [Akun Default](#akun-default)
-- [Struktur Folder](#struktur-folder)
+- [Struktur Folder](#-struktur-folder)
 
 ---
 
@@ -182,6 +193,15 @@ server {
 
 ## ✨ Fitur Utama
 
+### Dashboard Admin (Redesigned)
+
+- ✅ **Masonry Layout** - Tampilan kartu responsif yang menyesuaikan tinggi konten
+- ✅ **Ringkasan Statistik** - Total guru, kelas, tahun akademik aktif
+- ✅ **Ringkasan Tugas** - Status menunggu, terverifikasi, ditolak
+- ✅ **Ringkasan Jurnal** - Total entri dan data bulan berjalan dengan top guru
+- ✅ **Aktivitas Terbaru** - Jurnal dan tugas terbaru
+- ✅ User Interface profesional, data-dense, tanpa gradien dekoratif
+
 ### Untuk Guru (Teacher)
 
 - ✅ Dashboard dengan ringkasan jurnal
@@ -189,13 +209,20 @@ server {
 - ✅ Lihat daftar jurnal
 - ✅ Edit dan hapus jurnal
 - ✅ Rekapitulasi harian dan bulanan
-- ✅ Cetak rekapitulasi
+- ✅ **Cetak rekapitulasi ke PDF** dengan:
+  - KOP surat SMKN 1 Probolinggo (Jalan Mastrip Nomor 357, Telepon (0335) 421121)
+  - Identitas guru lengkap & NIP
+  - Tanda tangan dengan spacing profesional
+  - Top margin 1.5cm
 
 ### Untuk Admin
 
-- ✅ Dashboard admin
-- ✅ Kelola pengguna (guru & admin)
-- ✅ Kelola kelas
+- ✅ **Dashboard admin** dengan masonry layout & data density tinggi
+- ✅ **Kelola pengguna (guru & admin)** dengan:
+  - Paginasi 25 baris per halaman
+  - Pencarian nama guru real-time
+  - Reset password & manajemen NIP
+- ✅ Kelola kelas (otomatis mengenali jenjang X, XI, XII)
 - ✅ Kelola mata pelajaran
 - ✅ Kelola tahun pelajaran
 - ✅ Pengaturan sekolah (ubah nama, upload logo)
@@ -221,7 +248,18 @@ Setelah menjalankan `php db/seed.php`, gunakan akun berikut:
 
 ---
 
-## 📁 Struktur Folder
+## � Stack Teknologi
+
+- **Backend:** PHP 8.0+ (MVC Architecture)
+- **Database:** MySQL / MariaDB
+- **Frontend:** HTML5, CSS3 (Tailwind CSS)
+- **PDF Generation:** DomPDF
+- **Server:** Apache / Nginx / PHP Built-in
+- **Session Management:** PHP Sessions
+
+---
+
+## �📁 Struktur Folder
 
 ```
 ejurnal/
@@ -257,6 +295,14 @@ ejurnal/
 ### Logo tidak muncul
 
 - **Solusi:** Pastikan folder `assets/uploads/` ada dan writable
+
+### NIP tidak muncul di PDF
+
+- **Solusi:** Pastikan guru sudah memiliki NIP di profil (tidak kosong), atau login ulang agar session ter-update
+
+### PDF margin & spacing tidak pas
+
+- **Solusi:** Periksa aplikasi cetak/PDF viewer — setting margin printer mungkin override CSS halaman
 
 ### Error 500
 
