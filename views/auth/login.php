@@ -70,7 +70,7 @@
         </form>
 
         <!-- Footer Info -->
-        <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+        <!-- <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
             <p class="text-xs md:text-sm text-gray-600 mb-2">
                 <strong>Demo Login:</strong>
             </p>
@@ -78,6 +78,6 @@
                 <p><span class="font-semibold">Guru:</span> guru1 / guru123</p>
                 <p><span class="font-semibold">Admin:</span> admin / admin123</p>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
