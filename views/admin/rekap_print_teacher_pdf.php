@@ -138,21 +138,21 @@ $schoolName = (isset($this) && isset($this->settingsModel))
 
         .ttd-box .jabatan {
             font-size: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             font-weight: 600;
         }
 
         .ttd-box .nama {
             font-size: 10px;
             text-decoration: underline;
-            margin-bottom: 1px;
+            margin-bottom: 0px;
             display: block;
         }
 
         .ttd-box .nip {
             font-size: 10px;
             color: #000;
-            margin-top: 2px;
+            margin-top: 0px;
         }
     </style>
 </head>
@@ -168,7 +168,7 @@ $schoolName = (isset($this) && isset($this->settingsModel))
         </div>
 
         <div class="judul">
-            Rekap Jurnal Mengajar Bulan <?= htmlspecialchars($month_display ?? '') ?>
+            Rekap Jurnal Mengajar Guru
         </div>
 
         <div class="info-guru">

@@ -139,16 +139,16 @@ $adminName = $_SESSION['user']['name'] ?? 'Admin';
 
         .ttd-box .jabatan {
             font-size: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             font-weight: 600;
         }
 
-        .ttd-box .nama {
+        /* .ttd-box .nama {
             font-size: 10px;
             text-decoration: underline;
             margin-bottom: 1px;
             display: block;
-        }
+        } */
     </style>
 </head>
 
@@ -163,7 +163,7 @@ $adminName = $_SESSION['user']['name'] ?? 'Admin';
         </div>
 
         <div class="judul">
-            Rekap Jurnal Mengajar Bulan <?= htmlspecialchars($month_display ?? '') ?>
+            Rekap Jurnal Mengajar Kelas
         </div>
 
         <div class="info-guru">
@@ -213,8 +213,8 @@ $adminName = $_SESSION['user']['name'] ?? 'Admin';
                 ?>
                 <div class="ttd-box">
                     <div class="tanggal">Probolinggo, <?= $tgl ?></div>
-                    <div class="jabatan">Admin</div>
-                    <div class="nama"><?= htmlspecialchars($adminName) ?></div>
+                    <div class="jabatan">Guru Wali Kelas</div>
+                    <div class="nama">________________________</div>
                 </div>
             </div>
         <?php endif; ?>
