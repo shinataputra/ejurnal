@@ -828,8 +828,9 @@ class AdminController extends Controller
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
 
-                $filename = 'recap_kelas_' . ($month . '_' . $year) . '.pdf';
-                $dompdf->stream($filename, ['Attachment' => 0]);
+                $safe_class_name = preg_replace('/[^a-zA-Z0-9]/', '_', $class_name);
+                $filename = 'Rekap_' . $safe_class_name . '_' . $month . '_' . $year . '.pdf';
+                $dompdf->stream($filename, ['Attachment' => 1]);
                 exit;
             } catch (\Exception $e) {
                 // fallback to HTML
@@ -840,6 +841,7 @@ class AdminController extends Controller
             'current_user' => $_SESSION['user'],
             'journals' => $journals,
             'class_name' => $class_name,
+            'class_id' => $class_id,
             'month_year' => $month_year,
             'month' => $month,
             'year' => $year,
@@ -850,13 +852,13 @@ class AdminController extends Controller
     public function rekapPrintTeacher()
     {
         $this->requireAdmin();
-        $user_id = $_GET['user_id'] ?? 0;
+        $teacher_id = $_GET['teacher_id'] ?? 0;
         $month_year = $_GET['month_year'] ?? date('m-Y');
 
-        $user = $this->userModel->findById($user_id);
+        $user = $this->userModel->findById($teacher_id);
         if (!$user || $user['role'] !== 'teacher') {
             $_SESSION['flash_error'] = 'Guru tidak ditemukan.';
-            $this->redirect('index.php?p=admin/recap-by-teacher');
+            $this->redirect('index.php?p=admin/rekap-by-teacher');
             return;
         }
 
@@ -864,7 +866,7 @@ class AdminController extends Controller
         $month = $parts[0] ?? date('m');
         $year = $parts[1] ?? date('Y');
 
-        $journals = $this->journalModel->getJournalsByMonthAndUser($user_id, $month_year);
+        $journals = $this->journalModel->getJournalsByMonthAndUser($teacher_id, $month_year);
 
         $monthNames = [
             'Januari',
@@ -898,8 +900,9 @@ class AdminController extends Controller
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
 
-                $filename = 'recap_guru_' . ($user['username'] ?? 'guru') . '_' . ($month . '_' . $year) . '.pdf';
-                $dompdf->stream($filename, ['Attachment' => 0]);
+                $safe_teacher_name = preg_replace('/[^a-zA-Z0-9]/', '_', $user['name'] ?? 'guru');
+                $filename = 'Rekap_' . $safe_teacher_name . '_' . $month . '_' . $year . '.pdf';
+                $dompdf->stream($filename, ['Attachment' => 1]);
                 exit;
             } catch (\Exception $e) {
                 // fallback to HTML

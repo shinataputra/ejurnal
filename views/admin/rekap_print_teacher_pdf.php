@@ -1,93 +1,228 @@
-<!DOCTYPE html>
-<html>
+<?php
+$schoolName = (isset($this) && isset($this->settingsModel))
+    ? ($this->settingsModel->get('school_name') ?? 'SMKN 1 Probolinggo')
+    : 'SMKN 1 Probolinggo';
+?>
+<!doctype html>
+<html lang="id">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <title>Rekap Jurnal Mengajar <?= htmlspecialchars($month_display ?? '') ?></title>
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 1.5cm 2cm 2cm 2cm;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 11px;
+            color: #000;
+            margin: 0;
+            padding: 0;
             line-height: 1.6;
         }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 5px;
+        .container {
+            width: 100%;
         }
 
-        .title {
+        .kop-surat {
             text-align: center;
+            border-bottom: 3px solid #000;
+            padding-bottom: 10px;
             margin-bottom: 20px;
+        }
+
+        .kop-surat .sekolah {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .kop-surat .alamat {
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        .judul {
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-transform: uppercase;
+        }
+
+        .info-guru {
+            font-size: 11px;
+            margin-bottom: 15px;
+        }
+
+        .info-guru div {
+            margin-bottom: 4px;
+        }
+
+        .info-label {
+            display: inline-block;
+            width: 130px;
+            font-weight: bold;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            table-layout: fixed;
+            font-size: 10px;
+        }
+
+        thead {
+            background-color: #e0e0e0;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 6px 4px;
+            vertical-align: top;
         }
 
         th {
-            background-color: #f0f0f0;
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: left;
+            text-align: center;
             font-weight: bold;
         }
 
-        td {
-            border: 1px solid #ccc;
-            padding: 8px;
+        td.center {
+            text-align: center;
+        }
+
+        .materi-cell {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .catatan-cell {
+            font-size: 9px;
+            font-style: italic;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .no-data {
+            text-align: center;
+            font-style: italic;
+            margin-top: 20px;
         }
 
         .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
+            margin-top: 20px;
+            text-align: right;
+            page-break-inside: avoid;
+        }
+
+        .ttd-box {
+            display: inline-block;
+            text-align: left;
+            min-width: 220px;
+        }
+
+        .ttd-box .tanggal {
+            font-size: 10px;
+            margin-bottom: 6px;
+        }
+
+        .ttd-box .jabatan {
+            font-size: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .ttd-box .nama {
+            font-size: 10px;
+            text-decoration: underline;
+            margin-bottom: 1px;
+            display: block;
+        }
+
+        .ttd-box .nip {
+            font-size: 10px;
+            color: #000;
+            margin-top: 2px;
         }
     </style>
 </head>
 
 <body>
-    <h2>REKAP JURNAL MENGAJAR</h2>
-    <div class="title">
-        <p style="margin: 0; font-size: 14px;">
-            <strong><?= htmlspecialchars($user['name']) ?></strong><br>
-            <?= htmlspecialchars($user['username']) ?><br>
-            <?= htmlspecialchars($month_display) ?>
-        </p>
-    </div>
+    <div class="container">
+        <div class="kop-surat">
+            <div class="sekolah"><?= htmlspecialchars($schoolName) ?></div>
+            <div class="alamat">
+                Jalan Mastrip Nomor 357, Telepon (0335) 421121 Probolinggo (67239)<br>
+                Laman: smkn1probolinggo.sch.id &nbsp; Pos-el: smkn1_probolinggo@yahoo.co.id
+            </div>
+        </div>
 
-    <?php if (!empty($journals)): ?>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 12%;">Tanggal</th>
-                    <th style="width: 15%;">Kelas</th>
-                    <th style="width: 18%;">Mata Pelajaran</th>
-                    <th style="width: 8%;">Jam</th>
-                    <th style="width: 25%;">Materi</th>
-                    <th style="width: 12%;">Catatan</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($journals as $j): ?>
+        <div class="judul">
+            Rekap Jurnal Mengajar Bulan <?= htmlspecialchars($month_display ?? '') ?>
+        </div>
+
+        <div class="info-guru">
+            <div><span class="info-label">Nama Guru</span>: <?= htmlspecialchars($user['name'] ?? '-') ?></div>
+            <div><span class="info-label">NIP</span>: <?= htmlspecialchars($user['nip'] ?? '-') ?></div>
+            <div><span class="info-label">Periode</span>: <?= htmlspecialchars($month_display ?? '-') ?></div>
+        </div>
+
+        <?php if (empty($journals)): ?>
+            <div class="no-data">
+                Tidak terdapat jurnal mengajar pada periode <?= htmlspecialchars($month_display ?? '') ?>
+            </div>
+        <?php else: ?>
+            <table>
+                <thead>
                     <tr>
-                        <td><?= date('d/m/Y', strtotime($j['date'])) ?></td>
-                        <td><?= htmlspecialchars($j['class_name']) ?></td>
-                        <td><?= htmlspecialchars($j['subject_name']) ?></td>
-                        <td style="text-align: center;"><?= $j['jam_ke'] ?></td>
-                        <td><?= htmlspecialchars(substr($j['materi'], 0, 80)) ?></td>
-                        <td style="font-size: 11px;"><?= htmlspecialchars(substr($j['notes'] ?? '', 0, 50)) ?></td>
+                        <th style="width:4%">No</th>
+                        <th style="width:11%">Tanggal</th>
+                        <th style="width:10%">Kelas</th>
+                        <th style="width:7%">Jam</th>
+                        <th style="width:16%">Mapel</th>
+                        <th style="width:28%">Materi</th>
+                        <th style="width:24%">Catatan</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php else: ?>
-        <p style="text-align: center; color: #666;">Tidak ada data jurnal untuk periode ini.</p>
-    <?php endif; ?>
+                </thead>
+                <tbody>
+                    <?php $i = 1;
+                    foreach ($journals as $j): ?>
+                        <tr>
+                            <td class="center"><?= $i++ ?></td>
+                            <td class="center"><?= date('d/m/Y', strtotime($j['date'])) ?></td>
+                            <td class="center"><?= htmlspecialchars(str_replace('-', ' ', $j['class_name'] ?? '-')) ?></td>
+                            <td class="center"><?= htmlspecialchars((string)($j['jam_ke'] ?? '-')) ?></td>
+                            <td><?= htmlspecialchars($j['subject_name'] ?? '-') ?></td>
+                            <td class="materi-cell"><?= htmlspecialchars($j['materi'] ?? '-') ?></td>
+                            <td class="catatan-cell"><?= htmlspecialchars($j['notes'] ?? '-') ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
 
-    <div class="footer">
-        Dicetak pada: <?= date('d/m/Y H:i:s') ?>
+            <div class="footer">
+                <?php
+                $bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                $tgl = date('d') . ' ' . $bulan[date('n') - 1] . ' ' . date('Y');
+                ?>
+                <div class="ttd-box">
+                    <div class="tanggal">Probolinggo, <?= $tgl ?></div>
+                    <div class="jabatan">Guru Pengajar</div>
+                    <div class="nama"><?= htmlspecialchars($user['name'] ?? '') ?></div>
+                    <div class="nip">NIP: <?= htmlspecialchars($user['nip'] ?? '-') ?></div>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
 </body>
 

@@ -84,8 +84,8 @@ $page_title = 'Rekap Jurnal Per Guru';
             <h2 class="text-2xl font-bold text-gray-800">
                 <?= htmlspecialchars($selectedTeacher['name']) ?> - <?= htmlspecialchars($monthNames[$month]) ?> <?= $year ?>
             </h2>
-            <a href="index.php?p=admin/rekap-print-teacher&teacher_id=<?= $teacher_id ?>&month_year=<?= $month . '-' . $year ?>&pdf=1" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition" target="_blank">
-                📄 Cetak PDF
+            <a href="index.php?p=admin/rekap-print-teacher&teacher_id=<?= $teacher_id ?>&month_year=<?= $month . '-' . $year ?>&pdf=1" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition shadow-md hover:shadow-lg">
+                ⬇️ Download PDF
             </a>
         </div>
 

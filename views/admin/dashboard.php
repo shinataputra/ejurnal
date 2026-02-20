@@ -1,177 +1,147 @@
 <?php
 // views/admin/dashboard.php
 ?>
-<div class="space-y-6">
-    <!-- Page Header -->
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard Admin</h1>
-        <p class="text-gray-600">Kelola data sekolah dan monitor aktivitas jurnal</p>
-    </div>
+<style>
+    .admin-shell {
+        --ink: #0f172a;
+        --muted: #64748b;
+        --line: #e2e8f0;
+        --card: #ffffff;
+    }
 
-    <!-- Masonry-style container for compact admin cards -->
-    <style>
-        .dashboard-masonry {
-            column-count: 3;
-            column-gap: 1rem;
-        }
+    .hero {
+        border: 1px solid #dbeafe;
+        background: linear-gradient(135deg, #eff6ff 0%, #ecfdf5 100%);
+    }
 
-        @media (max-width: 1024px) {
-            .dashboard-masonry {
-                column-count: 2;
-            }
-        }
+    .dash-card {
+        background: var(--card);
+        border: 1px solid var(--line);
+    }
 
-        @media (max-width: 640px) {
-            .dashboard-masonry {
-                column-count: 1;
-            }
-        }
+    .kpi-value {
+        color: var(--ink);
+        letter-spacing: -0.02em;
+    }
 
-        .dashboard-card {
-            display: inline-block;
-            width: 100%;
-            margin: 0 0 1rem;
-            break-inside: avoid;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-        }
+    .activity-list li:last-child {
+        border-bottom: 0;
+    }
+</style>
 
-        .dashboard-card .card-header {
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        .metrics-row {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .metrics-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #111827;
-        }
-
-        .metric-note {
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-    </style>
-
-    <div class="dashboard-masonry mt-4">
-        <!-- Total Teachers Card -->
-        <div class="dashboard-card">
-            <div class="card-header">Total Guru</div>
-            <div class="metrics-row">
-                <div class="metrics-item">
-                    <div class="metric-value"><?php echo intval($teacher_count ?? 0); ?></div>
-                    <div class="metric-note">Guru aktif</div>
-                </div>
+<div class="admin-shell space-y-6">
+    <section class="hero rounded-2xl p-5 md:p-6">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Dashboard Admin</h1>
+                <p class="mt-1 text-sm md:text-base text-slate-600">Pantau aktivitas jurnal, tugas guru, dan status data sekolah secara ringkas.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <a href="index.php?p=admin/rekap" class="rounded-lg bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-blue-700 transition">Rekap Bulanan</a>
+                <a href="index.php?p=admin/tasks" class="rounded-lg bg-emerald-600 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-emerald-700 transition">Verifikasi Tugas</a>
+                <a href="index.php?p=admin/users" class="rounded-lg bg-slate-700 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-slate-800 transition">Kelola Guru</a>
+                <a href="index.php?p=admin/classes" class="rounded-lg bg-slate-700 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-slate-800 transition">Kelola Kelas</a>
             </div>
         </div>
+    </section>
 
-        <!-- Total Classes Card -->
-        <div class="dashboard-card">
-            <div class="card-header">Total Kelas</div>
-            <div class="metrics-row">
-                <div class="metrics-item">
-                    <div class="metric-value"><?php echo intval($class_count ?? 0); ?></div>
-                    <div class="metric-note">Kelas terdaftar</div>
+    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <article class="dash-card rounded-xl p-4">
+            <p class="text-sm text-slate-500">Total Guru</p>
+            <p class="kpi-value mt-2 text-3xl font-bold"><?php echo intval($teacher_count ?? 0); ?></p>
+            <p class="mt-1 text-xs text-slate-500">Guru aktif</p>
+        </article>
+        <article class="dash-card rounded-xl p-4">
+            <p class="text-sm text-slate-500">Total Kelas</p>
+            <p class="kpi-value mt-2 text-3xl font-bold"><?php echo intval($class_count ?? 0); ?></p>
+            <p class="mt-1 text-xs text-slate-500">Kelas terdaftar</p>
+        </article>
+        <article class="dash-card rounded-xl p-4">
+            <p class="text-sm text-slate-500">Tahun Pelajaran Aktif</p>
+            <p class="kpi-value mt-2 text-lg md:text-xl font-bold"><?php echo htmlspecialchars($active_year['name'] ?? '-'); ?></p>
+            <p class="mt-1 text-xs text-slate-500"><?php echo isset($active_year['start_date']) ? htmlspecialchars($active_year['start_date']) . ' - ' . htmlspecialchars($active_year['end_date']) : 'Belum ditentukan'; ?></p>
+        </article>
+        <article class="dash-card rounded-xl p-4">
+            <p class="text-sm text-slate-500">Jurnal Bulan Ini</p>
+            <p class="kpi-value mt-2 text-3xl font-bold"><?php echo intval($journals_this_month ?? 0); ?></p>
+            <p class="mt-1 text-xs text-slate-500">Dari total <?php echo intval($total_journals ?? 0); ?> entri</p>
+        </article>
+        <article class="dash-card rounded-xl p-4">
+            <p class="text-sm text-slate-500">Tugas Menunggu</p>
+            <p class="mt-2 text-3xl font-bold text-amber-600"><?php echo intval($pending_count ?? 0); ?></p>
+            <p class="mt-1 text-xs text-slate-500">Perlu verifikasi admin</p>
+        </article>
+        <article class="dash-card rounded-xl p-4">
+            <p class="text-sm text-slate-500">Status Tugas</p>
+            <div class="mt-2 flex items-end gap-4">
+                <div>
+                    <p class="text-2xl font-bold text-emerald-600"><?php echo intval($verified_count ?? 0); ?></p>
+                    <p class="text-xs text-slate-500">Terverifikasi</p>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-rose-600"><?php echo intval($rejected_count ?? 0); ?></p>
+                    <p class="text-xs text-slate-500">Ditolak</p>
                 </div>
             </div>
-        </div>
+        </article>
+    </section>
 
-        <!-- Active Academic Year Card -->
-        <div class="dashboard-card">
-            <div class="card-header">Tahun Aktif</div>
-            <div class="metrics-row">
-                <div class="metrics-item">
-                    <div class="metric-value"><?php echo htmlspecialchars($active_year['name'] ?? '-'); ?></div>
-                    <div class="metric-note"><?php echo isset($active_year['start_date']) ? htmlspecialchars($active_year['start_date']) . ' → ' . htmlspecialchars($active_year['end_date']) : 'Tahun pelajaran'; ?></div>
-                </div>
+    <section class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <article class="dash-card rounded-xl p-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-slate-900">Top Guru Bulan Ini</h2>
+                <a href="index.php?p=admin/rekap-by-teacher" class="text-sm font-medium text-blue-600 hover:text-blue-700">Lihat Rekap</a>
             </div>
-        </div>
-
-        <!-- Tasks summary -->
-        <div class="dashboard-card">
-            <div class="card-header">Ringkasan Tugas</div>
-            <div class="mt-1 metrics-row">
-                <div class="metrics-item">
-                    <div class="metric-value"><?php echo intval($pending_count ?? 0); ?></div>
-                    <div class="metric-note">Menunggu</div>
-                </div>
-                <div class="metrics-item">
-                    <div class="metric-value" style="color:#15803d"><?php echo intval($verified_count ?? 0); ?></div>
-                    <div class="metric-note">Terverifikasi</div>
-                </div>
-                <div class="metrics-item">
-                    <div class="metric-value" style="color:#b91c1c"><?php echo intval($rejected_count ?? 0); ?></div>
-                    <div class="metric-note">Ditolak</div>
-                </div>
-            </div>
-            <div class="mt-2" style="font-size:0.85rem;color:#6b7280;">Ringkasan status tugas pada periode berjalan.</div>
-        </div>
-
-        <!-- Journals summary -->
-        <div class="dashboard-card">
-            <div class="card-header">Ringkasan Jurnal</div>
-            <div class="mt-1 metrics-row">
-                <div class="metrics-item">
-                    <div class="metric-value"><?php echo intval($total_journals ?? 0); ?></div>
-                    <div class="metric-note">Total entri</div>
-                </div>
-                <div class="metrics-item">
-                    <div class="metric-value"><?php echo intval($journals_this_month ?? 0); ?></div>
-                    <div class="metric-note">Bulan ini</div>
-                </div>
-            </div>
-            <div class="mt-2" style="font-size:0.85rem;color:#6b7280;">Top guru bulan ini:</div>
-            <ol class="mt-2" style="font-size:0.9rem;color:#111827; margin-left:1rem;">
-                <?php if (!empty($top_teachers)): foreach ($top_teachers as $t): ?>
-                        <li style="display:flex;justify-content:space-between;"><span><?php echo htmlspecialchars($t['name']); ?></span><span style="color:#6b7280;font-size:0.8rem"><?php echo intval($t['total_entries']); ?> entri</span></li>
-                    <?php endforeach;
-                else: ?>
-                    <li style="color:#6b7280;font-size:0.9rem">Belum ada data.</li>
+            <ol class="mt-3 space-y-2">
+                <?php if (!empty($top_teachers)): ?>
+                    <?php foreach ($top_teachers as $i => $t): ?>
+                        <li class="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                            <span class="text-sm text-slate-800"><?php echo ($i + 1) . '. ' . htmlspecialchars($t['name']); ?></span>
+                            <span class="text-xs font-semibold text-slate-600"><?php echo intval($t['total_entries']); ?> entri</span>
+                        </li>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <li class="text-sm text-slate-500">Belum ada data guru untuk bulan ini.</li>
                 <?php endif; ?>
             </ol>
-        </div>
+        </article>
 
-        <!-- Recent activity -->
-        <div class="dashboard-card">
-            <div class="card-header">Aktivitas Terbaru</div>
-            <div class="mt-1" style="font-size:0.9rem;color:#111827;">
-                <div style="font-weight:600;margin-bottom:0.25rem;">Jurnal Terbaru</div>
-                <ul style="margin:0;padding-left:1rem;font-size:0.85rem;color:#374151;">
-                    <?php if (!empty($recent_journals)): foreach ($recent_journals as $rj): ?>
-                            <li style="display:flex;justify-content:space-between;margin-bottom:0.25rem;"><span><?php echo htmlspecialchars($rj['teacher_name']); ?> — <?php echo htmlspecialchars($rj['class_name']); ?></span><span style="color:#6b7280;font-size:0.8rem"><?php echo htmlspecialchars($rj['date']); ?></span></li>
-                        <?php endforeach;
-                    else: ?>
-                        <li style="color:#6b7280">Tidak ada jurnal.</li>
-                    <?php endif; ?>
-                </ul>
+        <article class="dash-card rounded-xl p-4">
+            <h2 class="text-lg font-semibold text-slate-900">Aktivitas Terbaru</h2>
 
-                <div style="font-weight:600;margin-top:0.5rem;margin-bottom:0.25rem;">Tugas Terbaru</div>
-                <ul style="margin:0;padding-left:1rem;font-size:0.85rem;color:#374151;">
-                    <?php if (!empty($recent_tasks)): foreach ($recent_tasks as $rt): ?>
-                            <li style="display:flex;justify-content:space-between;margin-bottom:0.25rem;"><span><?php echo htmlspecialchars($rt['teacher_name']); ?> — <?php echo htmlspecialchars($rt['class_name']); ?></span><span style="color:#6b7280;font-size:0.8rem"><?php echo htmlspecialchars($rt['status']); ?></span></li>
-                        <?php endforeach;
-                    else: ?>
-                        <li style="color:#6b7280">Tidak ada tugas.</li>
+            <div class="mt-3">
+                <p class="text-sm font-semibold text-slate-700">Jurnal Terbaru</p>
+                <ul class="activity-list mt-2 divide-y divide-slate-200 rounded-lg border border-slate-200">
+                    <?php if (!empty($recent_journals)): ?>
+                        <?php foreach ($recent_journals as $rj): ?>
+                            <li class="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                                <span class="text-slate-700"><?php echo htmlspecialchars($rj['teacher_name']); ?> - <?php echo htmlspecialchars($rj['class_name']); ?></span>
+                                <span class="whitespace-nowrap text-xs text-slate-500"><?php echo htmlspecialchars($rj['date']); ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li class="px-3 py-2 text-sm text-slate-500">Tidak ada jurnal terbaru.</li>
                     <?php endif; ?>
                 </ul>
             </div>
-        </div>
-    </div>
 
-    <!-- Per-class recap removed as requested; dashboard cards now adapt to content width -->
+            <div class="mt-4">
+                <p class="text-sm font-semibold text-slate-700">Tugas Terbaru</p>
+                <ul class="activity-list mt-2 divide-y divide-slate-200 rounded-lg border border-slate-200">
+                    <?php if (!empty($recent_tasks)): ?>
+                        <?php foreach ($recent_tasks as $rt): ?>
+                            <li class="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                                <span class="text-slate-700"><?php echo htmlspecialchars($rt['teacher_name']); ?> - <?php echo htmlspecialchars($rt['class_name']); ?></span>
+                                <span class="whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold <?php echo ($rt['status'] ?? '') === 'verified' ? 'bg-emerald-100 text-emerald-700' : ((($rt['status'] ?? '') === 'rejected') ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'); ?>">
+                                    <?php echo htmlspecialchars($rt['status']); ?>
+                                </span>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li class="px-3 py-2 text-sm text-slate-500">Tidak ada tugas terbaru.</li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </article>
+    </section>
 </div>

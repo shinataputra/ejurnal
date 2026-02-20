@@ -33,7 +33,7 @@ $page_title = 'Cetak Rekap - ' . htmlspecialchars($user['name']);
             <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition">
                 🖨️ Cetak
             </button>
-            <a href="index.php?p=admin/rekap-print-teacher&user_id=<?= $user['id'] ?>&month_year=<?= $month_year ?>&pdf=1" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition" target="_blank">
+            <a href="index.php?p=admin/rekap-print-teacher&teacher_id=<?= $user['id'] ?>&month_year=<?= $month_year ?>&pdf=1" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition" target="_blank">
                 📄 PDF
             </a>
         </div>
