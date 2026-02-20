@@ -19,6 +19,17 @@
         </div>
     <?php endif; ?>
 
+    <!-- Error Message -->
+    <?php if (!empty($_SESSION['flash_error'])): ?>
+        <div class="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <p><?= htmlspecialchars($_SESSION['flash_error']);
+                unset($_SESSION['flash_error']); ?></p>
+        </div>
+    <?php endif; ?>
+
     <!-- Add Button -->
     <a href="?p=admin/academicYearsAdd" class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition">
         ➕ Tambah Tahun Pelajaran
@@ -39,6 +50,7 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Periode</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Aksi</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -60,6 +72,16 @@
                                     </a>
                                 <?php else: ?>
                                     <span class="text-gray-500 text-xs">Tahun aktif</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 text-sm space-x-2">
+                                <a href="?p=admin/academicYearsEdit&id=<?= $ay['id'] ?>" class="inline-block bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded text-xs font-semibold transition">
+                                    ✏️ Edit
+                                </a>
+                                <?php if (!$ay['is_active']): ?>
+                                    <a href="?p=admin/academicYearsDelete&id=<?= $ay['id'] ?>" onclick="return confirm('Apakah Anda yakin ingin menghapus tahun <?= htmlspecialchars($ay['name']) ?>?')" class="inline-block bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-xs font-semibold transition">
+                                        🗑️ Hapus
+                                    </a>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -85,11 +107,21 @@
                             <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">Tidak Aktif</span>
                         <?php endif; ?>
                     </div>
-                    <?php if (!$ay['is_active']): ?>
-                        <a href="?p=admin/academicYearsSetActive&id=<?= $ay['id'] ?>" onclick="return confirm('Set tahun sebagai aktif?')" class="inline-block bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded text-xs font-semibold transition">
-                            📌 Set Aktif
+                    <div class="flex flex-wrap gap-2">
+                        <a href="?p=admin/academicYearsEdit&id=<?= $ay['id'] ?>" class="flex-1 text-center bg-amber-100 hover:bg-amber-200 text-amber-800 px-2 py-1 rounded text-xs font-semibold transition">
+                            ✏️ Edit
                         </a>
-                    <?php endif; ?>
+                        <?php if (!$ay['is_active']): ?>
+                            <a href="?p=admin/academicYearsDelete&id=<?= $ay['id'] ?>" onclick="return confirm('Apakah Anda yakin?')" class="flex-1 text-center bg-red-100 hover:bg-red-200 text-red-800 px-2 py-1 rounded text-xs font-semibold transition">
+                                🗑️ Hapus
+                            </a>
+                        <?php endif; ?>
+                        <?php if (!$ay['is_active']): ?>
+                            <a href="?p=admin/academicYearsSetActive&id=<?= $ay['id'] ?>" onclick="return confirm('Set tahun sebagai aktif?')" class="flex-1 text-center bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs font-semibold transition">
+                                📌 Aktif
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>

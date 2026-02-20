@@ -372,6 +372,54 @@ class AdminController extends Controller
         $this->redirect('index.php?p=admin/academic_years');
     }
 
+    public function academicYearsEdit()
+    {
+        $this->requireAdmin();
+        $id = (int)($_GET['id'] ?? 0);
+        if (!$id) {
+            $_SESSION['flash_error'] = 'Tahun pelajaran tidak ditemukan.';
+            $this->redirect('index.php?p=admin/academic_years');
+        }
+
+        $year = $this->ayModel->getById($id);
+        if (!$year) {
+            $_SESSION['flash_error'] = 'Tahun pelajaran tidak ditemukan.';
+            $this->redirect('index.php?p=admin/academic_years');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                ':name' => $_POST['name'] ?? '',
+                ':start_date' => $_POST['start_date'] ?? '',
+                ':end_date' => $_POST['end_date'] ?? ''
+            ];
+            $this->ayModel->update($id, $data);
+            $_SESSION['flash_success'] = 'Tahun pelajaran diperbarui.';
+            $this->redirect('index.php?p=admin/academic_years');
+        }
+
+        $this->render('admin/academic_years_edit.php', [
+            'year' => $year,
+            'current_user' => $_SESSION['user']
+        ]);
+    }
+
+    public function academicYearsDelete()
+    {
+        $this->requireAdmin();
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id) {
+            $year = $this->ayModel->getById($id);
+            if ($year && !$year['is_active']) {
+                $this->ayModel->delete($id);
+                $_SESSION['flash_success'] = 'Tahun pelajaran dihapus.';
+            } else {
+                $_SESSION['flash_error'] = 'Tahun pelajaran aktif tidak dapat dihapus.';
+            }
+        }
+        $this->redirect('index.php?p=admin/academic_years');
+    }
+
     public function settings()
     {
         $this->requireAdmin();

@@ -16,10 +16,30 @@ class AcademicYear extends Model
         return $stmt->fetchAll();
     }
 
+    public function getById($id)
+    {
+        $stmt = $this->db->prepare('SELECT * FROM academic_years WHERE id = :id');
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch();
+    }
+
     public function create($data)
     {
         $stmt = $this->db->prepare('INSERT INTO academic_years (name,start_date,end_date,is_active) VALUES (:name,:start_date,:end_date,:is_active)');
         return $stmt->execute($data);
+    }
+
+    public function update($id, $data)
+    {
+        $stmt = $this->db->prepare('UPDATE academic_years SET name = :name, start_date = :start_date, end_date = :end_date WHERE id = :id');
+        $data[':id'] = $id;
+        return $stmt->execute($data);
+    }
+
+    public function delete($id)
+    {
+        $stmt = $this->db->prepare('DELETE FROM academic_years WHERE id = :id');
+        return $stmt->execute([':id' => $id]);
     }
 
     public function setActive($id)
