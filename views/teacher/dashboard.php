@@ -45,15 +45,22 @@
             <p class="text-xs text-gray-500 mt-3">Tanggal: <?= date('d F Y', strtotime('today')) ?></p>
         </div>
 
-        <!-- Quick Stats -->
+        <!-- Quick Stats & Primary Action -->
         <div class="bg-white rounded-lg shadow p-4 md:p-6 border-l-4 border-l-blue-500">
             <div>
                 <p class="text-xs md:text-sm text-gray-600 mb-1">Aksi Cepat</p>
                 <h2 class="text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-4">Mulai Catat Jurnal</h2>
-                <p class="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">Pastikan Anda selalu mencatat jurnal mengajar setiap hari untuk kelengkapan administrasi.</p>
-                <a href="?p=teacher/add" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 md:py-2 md:px-4 rounded-lg transition text-sm md:text-base">
-                    Tambah Jurnal Sekarang →
+                <p class="text-xs md:text-sm text-gray-600 mb-4 md:mb-6">Pastikan Anda selalu mencatat jurnal mengajar setiap hari untuk kelengkapan administrasi.</p>
+
+                <!-- Primary Action Button: Tambah Jurnal -->
+                <a href="?p=teacher/add" class="primary-btn-add-journal" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 12px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 1rem; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); border: none; cursor: pointer; white-space: nowrap;">
+                    <svg style="width: 24px; height: 24px; stroke: white; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span style="color: white; font-weight: 700;">Tambah Jurnal</span>
                 </a>
+
+                <p class="text-xs md:text-sm text-gray-500 mt-3">Isi jurnal harian mengajar untuk administrasi lengkap</p>
             </div>
         </div>
     </div>

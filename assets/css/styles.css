@@ -13,3 +13,119 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
 @media (max-width: 420px) {
 	#sidebar { width: 14rem; }
 }
+/* ============================================
+   PRIMARY ACTION BUTTON: Tambah Jurnal
+   ============================================ */
+
+/**
+ * Primary Button Styling for "Tambah Jurnal"
+ * Psychology: Guru ingin cepat, jelas, dan minim mikir
+ * Design system: Positive, productive colors (emerald)
+ * Micro-interactions: smooth, inviting, hierarchically prominent
+ */
+.primary-btn-add-journal {
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.primary-btn-add-journal:hover {
+	transform: scale(1.05) !important;
+	box-shadow: 0 20px 40px rgba(16, 185, 129, 0.45) !important;
+	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+}
+
+.primary-btn-add-journal:active {
+	transform: scale(0.98) !important;
+	box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25) !important;
+}
+
+.primary-btn-add-journal:focus {
+	outline: 2px solid rgba(16, 185, 129, 0.6);
+	outline-offset: 3px;
+}
+
+/**
+ * Hover State: Scale effect + deeper shadow + brighter color
+ * Psychological effect: "efek mengajak" - invites the user
+ */
+.primary-btn-add-journal:hover {
+	/* Scale for "lifting" effect */
+	transform: scale(1.05);
+	
+	/* Deeper shadow on hover - indicates elevation/importance */
+	box-shadow: 0 20px 40px rgba(16, 185, 129, 0.45) !important;
+	
+	/* Brighter gradient on hover */
+	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+}
+
+/**
+ * Active/Click State: Provides tactile feedback
+ */
+.primary-btn-add-journal:active {
+	transform: scale(0.98);
+	box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25) !important;
+}
+
+/**
+ * Focus State: Accessibility - visible focus indicator for keyboard users
+ */
+.primary-btn-add-journal:focus {
+	outline: 2px solid rgba(16, 185, 129, 0.6);
+	outline-offset: 3px;
+}
+
+/**
+ * Icon animation on hover
+ */
+.primary-btn-add-journal:hover .primary-btn-icon {
+	transform: scale(1.15) rotate(5deg);
+}
+
+/**
+ * Responsive adjustments
+ */
+@media (max-width: 768px) {
+	.primary-btn-add-journal {
+		/* Slightly smaller on mobile but still prominent */
+		font-size: 0.95rem;
+	}
+	
+	/* Reduce hover scale on touch devices slightly */
+	@media (hover: none) and (pointer: coarse) {
+		.primary-btn-add-journal:hover {
+			transform: scale(1.02);
+		}
+	}
+}
+
+/**
+ * Dark mode support (if your app implements it)
+ */
+@media (prefers-color-scheme: dark) {
+	.primary-btn-add-journal:hover {
+		box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4);
+		filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.3));
+	}
+}
+
+/**
+ * Reduced motion support for accessibility
+ * Respects user's OS motion preferences
+ */
+@media (prefers-reduced-motion: reduce) {
+	.primary-btn-add-journal {
+		transition: none;
+	}
+	
+	.primary-btn-add-journal svg {
+		transition: none;
+	}
+	
+	.primary-btn-add-journal:hover {
+		transform: none;
+	}
+	
+	.primary-btn-add-journal:active {
+		transform: none;
+	}
+}
