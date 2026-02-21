@@ -278,25 +278,33 @@ class TeacherController extends Controller
         $current_user = $_SESSION['user'];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Handle POST update
-            $jenjang = $_POST['jenjang'] ?? '';
-            $rombel = $_POST['rombel'] ?? '';
+            // Preferred source from form
+            $class_id = (int)($_POST['class_id'] ?? 0);
 
-            // Find class_id from jenjang and rombel
-            $classes = $this->classModel->all();
-            $class_id = 0;
-            foreach ($classes as $c) {
-                $name = trim($c['name']);
-                $parts = preg_split('/[-\s]+/', $name, 2);
-                $c_jenjang = $parts[0] ?? '';
-                $c_rombel = $parts[1] ?? '';
-                if ($c_jenjang === $jenjang && $c_rombel === $rombel) {
-                    $class_id = $c['id'];
-                    break;
+            // Backward-compatible fallback if older form posts jenjang/rombel
+            if ($class_id <= 0) {
+                $jenjang = $_POST['jenjang'] ?? '';
+                $rombel = $_POST['rombel'] ?? '';
+                $classes = $this->classModel->all();
+                foreach ($classes as $c) {
+                    $name = trim($c['name']);
+                    $parts = preg_split('/[-\s]+/', $name, 2);
+                    $c_jenjang = $parts[0] ?? '';
+                    $c_rombel = $parts[1] ?? '';
+                    if ($c_jenjang === $jenjang && $c_rombel === $rombel) {
+                        $class_id = (int)$c['id'];
+                        break;
+                    }
                 }
             }
 
-            $this->journalModel->update($id, $current_user['id'], [
+            if ($class_id <= 0) {
+                $_SESSION['flash_error'] = 'Kelas tidak valid.';
+                $this->redirect('index.php?p=teacher/edit&id=' . (int)$id);
+                return;
+            }
+
+            $ok = $this->journalModel->update($id, $current_user['id'], [
                 'date' => $_POST['date'] ?? date('Y-m-d'),
                 'class_id' => $class_id,
                 'subject_id' => $_POST['subject_id'] ?? 0,
@@ -304,8 +312,14 @@ class TeacherController extends Controller
                 'materi' => $_POST['materi'] ?? '',
                 'notes' => $_POST['notes'] ?? ''
             ]);
-            $_SESSION['flash_success'] = 'Jurnal diperbarui.';
+
+            if ($ok) {
+                $_SESSION['flash_success'] = 'Jurnal diperbarui.';
+            } else {
+                $_SESSION['flash_error'] = 'Gagal memperbarui jurnal.';
+            }
             $this->redirect('index.php?p=teacher/list');
+            return;
         }
 
         // Handle GET request
