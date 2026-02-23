@@ -64,6 +64,9 @@ class AdminController extends Controller
         $journals_this_month = $db->prepare("SELECT COUNT(*) as c FROM journals WHERE MONTH(date)=:m AND YEAR(date)=:y");
         $journals_this_month->execute([':m' => $month, ':y' => $year]);
         $journals_this_month = (int)$journals_this_month->fetch()['c'];
+        $journals_today = $db->prepare("SELECT COUNT(*) as c FROM journals WHERE date=:today");
+        $journals_today->execute([':today' => date('Y-m-d')]);
+        $journals_today = (int)$journals_today->fetch()['c'];
 
         // Top teachers this month (by journal entries)
         $stmt = $db->prepare("SELECT u.id, u.name, COUNT(*) as total_entries FROM journals j JOIN users u ON j.user_id = u.id WHERE MONTH(j.date)=:m AND YEAR(j.date)=:y AND u.role='teacher' GROUP BY u.id, u.name ORDER BY total_entries DESC LIMIT 5");
@@ -88,6 +91,7 @@ class AdminController extends Controller
             'rejected_count' => $rejected_count,
             'total_journals' => $total_journals,
             'journals_this_month' => $journals_this_month,
+            'journals_today' => $journals_today,
             'top_teachers' => $top_teachers,
             'recent_journals' => $recent_journals,
             'recent_tasks' => $recent_tasks,

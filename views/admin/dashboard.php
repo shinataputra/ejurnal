@@ -35,7 +35,7 @@ $formatStatus = static function ($status): string {
     </section>
 
     <section class="rounded-xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm">
-        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-5">
             <div class="rounded-lg bg-slate-50 px-3 py-3">
                 <p class="text-xs uppercase tracking-wide text-slate-400">Total Guru</p>
                 <p class="mt-1 text-3xl md:text-4xl font-semibold leading-none text-slate-900"><?php echo intval($teacher_count ?? 0); ?></p>
@@ -48,6 +48,10 @@ $formatStatus = static function ($status): string {
                 <p class="text-xs uppercase tracking-wide text-slate-400">Jurnal Bulan Ini</p>
                 <p class="mt-1 text-3xl md:text-4xl font-semibold leading-none text-blue-900"><?php echo intval($journals_this_month ?? 0); ?></p>
                 <p class="mt-1 text-xs text-slate-500">Total: <?php echo intval($total_journals ?? 0); ?></p>
+            </div>
+            <div class="rounded-lg bg-slate-50 px-3 py-3">
+                <p class="text-xs uppercase tracking-wide text-slate-400">Jurnal Hari Ini</p>
+                <p class="mt-1 text-3xl md:text-4xl font-semibold leading-none text-cyan-700"><?php echo intval($journals_today ?? 0); ?></p>
             </div>
             <div class="rounded-lg bg-slate-50 px-3 py-3">
                 <p class="text-xs uppercase tracking-wide text-slate-400">Menunggu Verifikasi</p>
