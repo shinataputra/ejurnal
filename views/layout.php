@@ -41,7 +41,10 @@ $adminNavClass = static function (array $paths) use ($currentPath): string {
         ?>
     <?php else: ?>
         <!-- Check if user is teacher -->
-        <?php $isTeacher = (!empty($current_user) && $current_user['role'] === 'teacher'); ?>
+        <?php
+        $isTeacher = (!empty($current_user) && in_array(($current_user['role'] ?? ''), ['teacher', 'guru_bk'], true));
+        $teacherRoleLabel = (($current_user['role'] ?? '') === 'guru_bk') ? 'Guru BK' : 'Guru';
+        ?>
 
         <?php if ($isTeacher): ?>
             <!-- Teacher Layout (No Sidebar) -->
@@ -70,7 +73,7 @@ $adminNavClass = static function (array $paths) use ($currentPath): string {
                                 <div id="teacherProfileDropdownMobile" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50 border border-gray-200">
                                     <div class="p-4 border-b border-gray-200">
                                         <p class="text-sm font-semibold text-gray-900 truncate"><?= htmlspecialchars($current_user['name']) ?></p>
-                                        <p class="text-xs text-gray-500 capitalize">👨‍🏫 Guru</p>
+                                        <p class="text-xs text-gray-500 capitalize">👨‍🏫 <?= htmlspecialchars($teacherRoleLabel) ?></p>
                                     </div>
                                     <a href="?p=teacher/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                                         👤 Profil
@@ -108,7 +111,7 @@ $adminNavClass = static function (array $paths) use ($currentPath): string {
                                 <div id="teacherProfileDropdownDesktop" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50 border border-gray-200">
                                     <div class="p-4 border-b border-gray-200">
                                         <p class="text-sm font-semibold text-gray-900"><?= htmlspecialchars($current_user['name']) ?></p>
-                                        <p class="text-xs text-gray-500 capitalize">👨‍🏫 Guru</p>
+                                        <p class="text-xs text-gray-500 capitalize">👨‍🏫 <?= htmlspecialchars($teacherRoleLabel) ?></p>
                                     </div>
                                     <a href="?p=teacher/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                                         👤 Profil
@@ -168,7 +171,7 @@ $adminNavClass = static function (array $paths) use ($currentPath): string {
                     <!-- Navigation Menu -->
                     <nav class="flex-1 px-4 py-4 space-y-3">
                         <?php if (!empty($current_user)): ?>
-                            <?php if ($current_user['role'] === 'teacher'): ?>
+                            <?php if (in_array(($current_user['role'] ?? ''), ['teacher', 'guru_bk'], true)): ?>
                                 <!-- Teacher Menu -->
                                 <a href="?p=teacher/dashboard" class="block px-3 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-700">
                                     📊 Dashboard

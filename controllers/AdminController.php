@@ -45,7 +45,7 @@ class AdminController extends Controller
         $db = $this->userModel->getDb();
 
         // Counts
-        $teacher_count = (int)$db->query("SELECT COUNT(*) as c FROM users WHERE role = 'teacher'")->fetch()['c'];
+        $teacher_count = (int)$db->query("SELECT COUNT(*) as c FROM users WHERE role IN ('teacher', 'guru_bk')")->fetch()['c'];
         $class_count = (int)$db->query("SELECT COUNT(*) as c FROM classes")->fetch()['c'];
         $subject_count = (int)$db->query("SELECT COUNT(*) as c FROM subjects")->fetch()['c'];
 
@@ -69,7 +69,7 @@ class AdminController extends Controller
         $journals_today = (int)$journals_today->fetch()['c'];
 
         // Top teachers this month (by journal entries)
-        $stmt = $db->prepare("SELECT u.id, u.name, COUNT(*) as total_entries FROM journals j JOIN users u ON j.user_id = u.id WHERE MONTH(j.date)=:m AND YEAR(j.date)=:y AND u.role='teacher' GROUP BY u.id, u.name ORDER BY total_entries DESC LIMIT 5");
+        $stmt = $db->prepare("SELECT u.id, u.name, COUNT(*) as total_entries FROM journals j JOIN users u ON j.user_id = u.id WHERE MONTH(j.date)=:m AND YEAR(j.date)=:y AND u.role IN ('teacher', 'guru_bk') GROUP BY u.id, u.name ORDER BY total_entries DESC LIMIT 5");
         $stmt->execute([':m' => $month, ':y' => $year]);
         $top_teachers = $stmt->fetchAll();
 
@@ -130,16 +130,28 @@ class AdminController extends Controller
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
             $role = $_POST['role'] ?? 'teacher';
+            if (!in_array($role, ['teacher', 'guru_bk', 'admin'], true)) {
+                $role = 'teacher';
+            }
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $this->userModel->create([
-                ':name' => $name,
-                ':nip' => $nip,
-                ':username' => $username,
-                ':password' => $hash,
-                ':role' => $role
-            ]);
-            $_SESSION['flash_success'] = 'Guru ditambahkan.';
-            $this->redirect('index.php?p=admin/users');
+            try {
+                $this->userModel->create([
+                    ':name' => $name,
+                    ':nip' => $nip,
+                    ':username' => $username,
+                    ':password' => $hash,
+                    ':role' => $role
+                ]);
+                $_SESSION['flash_success'] = 'Pengguna ditambahkan.';
+                $this->redirect('index.php?p=admin/users');
+            } catch (\PDOException $e) {
+                if (strpos($e->getMessage(), "Data truncated for column 'role'") !== false) {
+                    $_SESSION['flash_error'] = "Role 'guru_bk' belum didukung oleh database. Jalankan migrasi database terlebih dahulu.";
+                } else {
+                    $_SESSION['flash_error'] = 'Gagal menambah pengguna: ' . $e->getMessage();
+                }
+                $this->redirect('index.php?p=admin/usersAdd');
+            }
         }
         $this->render('admin/users_add.php', ['current_user' => $_SESSION['user']]);
     }
@@ -176,15 +188,27 @@ class AdminController extends Controller
             $nip = $_POST['nip'] ?? '';
             $username = $_POST['username'] ?? '';
             $role = $_POST['role'] ?? 'teacher';
+            if (!in_array($role, ['teacher', 'guru_bk', 'admin'], true)) {
+                $role = 'teacher';
+            }
 
-            $this->userModel->update($id, [
-                'name' => $name,
-                'nip' => $nip,
-                'username' => $username,
-                'role' => $role
-            ]);
-            $_SESSION['flash_success'] = 'Data guru diperbarui.';
-            $this->redirect('index.php?p=admin/users');
+            try {
+                $this->userModel->update($id, [
+                    'name' => $name,
+                    'nip' => $nip,
+                    'username' => $username,
+                    'role' => $role
+                ]);
+                $_SESSION['flash_success'] = 'Data pengguna diperbarui.';
+                $this->redirect('index.php?p=admin/users');
+            } catch (\PDOException $e) {
+                if (strpos($e->getMessage(), "Data truncated for column 'role'") !== false) {
+                    $_SESSION['flash_error'] = "Role 'guru_bk' belum didukung oleh database. Jalankan migrasi database terlebih dahulu.";
+                } else {
+                    $_SESSION['flash_error'] = 'Gagal memperbarui pengguna: ' . $e->getMessage();
+                }
+                $this->redirect('index.php?p=admin/usersEdit&id=' . $id);
+            }
         }
 
         $this->render('admin/users_edit.php', [
@@ -199,9 +223,9 @@ class AdminController extends Controller
         $id = (int)($_GET['id'] ?? 0);
         if ($id) {
             $user = $this->userModel->findById($id);
-            if ($user && $user['role'] === 'teacher') {
+            if ($user && in_array($user['role'], ['teacher', 'guru_bk'], true)) {
                 $this->userModel->delete($id);
-                $_SESSION['flash_success'] = 'Guru dihapus.';
+                $_SESSION['flash_success'] = 'Pengguna dihapus.';
             } else {
                 $_SESSION['flash_error'] = 'Tidak dapat menghapus user.';
             }
@@ -750,7 +774,7 @@ class AdminController extends Controller
         ];
 
         // Get all teachers for dropdown
-        $stmt = $this->userModel->getDb()->query("SELECT id, name, username FROM users WHERE role = 'teacher' ORDER BY name ASC");
+        $stmt = $this->userModel->getDb()->query("SELECT id, name, username, role FROM users WHERE role IN ('teacher', 'guru_bk') ORDER BY name ASC");
         $teachers = $stmt->fetchAll();
 
         // Get weekly recap data if teacher is selected
@@ -860,7 +884,7 @@ class AdminController extends Controller
         $month_year = $_GET['month_year'] ?? date('m-Y');
 
         $user = $this->userModel->findById($teacher_id);
-        if (!$user || $user['role'] !== 'teacher') {
+        if (!$user || !in_array($user['role'], ['teacher', 'guru_bk'], true)) {
             $_SESSION['flash_error'] = 'Guru tidak ditemukan.';
             $this->redirect('index.php?p=admin/rekap-by-teacher');
             return;

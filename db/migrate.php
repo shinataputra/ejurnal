@@ -39,6 +39,23 @@ try {
     )');
 
     echo "✓ Tasks table created/verified\n";
+
+    // Extend users role enum with guru_bk
+    $pdo->exec("ALTER TABLE users MODIFY role ENUM('teacher','guru_bk','admin') NOT NULL DEFAULT 'teacher'");
+    echo "✓ Users role enum updated\n";
+
+    // Add Guru BK journal fields if not exists
+    $columns = $pdo->query("SHOW COLUMNS FROM journals")->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('target_kegiatan', $columns, true)) {
+        $pdo->exec('ALTER TABLE journals ADD COLUMN target_kegiatan TEXT NULL AFTER notes');
+    }
+    if (!in_array('kegiatan_layanan', $columns, true)) {
+        $pdo->exec('ALTER TABLE journals ADD COLUMN kegiatan_layanan VARCHAR(120) NULL AFTER target_kegiatan');
+    }
+    if (!in_array('hasil_dicapai', $columns, true)) {
+        $pdo->exec('ALTER TABLE journals ADD COLUMN hasil_dicapai TEXT NULL AFTER kegiatan_layanan');
+    }
+    echo "✓ Journal BK columns created/verified\n";
 } catch (Exception $e) {
     echo "✗ Error: " . $e->getMessage() . "\n";
     exit(1);

@@ -184,9 +184,11 @@ $adminName = $_SESSION['user']['name'] ?? 'Admin';
                         <th style="width:14%">Guru</th>
                         <th style="width:9%">Kelas</th>
                         <th style="width:7%">Jam</th>
-                        <th style="width:14%">Mapel</th>
-                        <th style="width:22%">Materi</th>
-                        <th style="width:20%">Catatan</th>
+                        <th style="width:13%">Mapel</th>
+                        <th style="width:18%">Materi/Sasaran</th>
+                        <th style="width:14%">Layanan</th>
+                        <th style="width:14%">Hasil</th>
+                        <th style="width:19%">Catatan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -199,7 +201,9 @@ $adminName = $_SESSION['user']['name'] ?? 'Admin';
                             <td class="center"><?= htmlspecialchars(str_replace('-', ' ', $j['class_name'] ?? '-')) ?></td>
                             <td class="center"><?= htmlspecialchars((string)($j['jam_ke'] ?? '-')) ?></td>
                             <td><?= htmlspecialchars($j['subject_name'] ?? '-') ?></td>
-                            <td class="materi-cell"><?= htmlspecialchars($j['materi'] ?? '-') ?></td>
+                            <td class="materi-cell"><?= htmlspecialchars(($j['teacher_role'] ?? '') === 'guru_bk' ? ($j['target_kegiatan'] ?? '-') : ($j['materi'] ?? '-')) ?></td>
+                            <td class="materi-cell"><?= htmlspecialchars(($j['teacher_role'] ?? '') === 'guru_bk' ? ($j['kegiatan_layanan'] ?? '-') : '-') ?></td>
+                            <td class="materi-cell"><?= htmlspecialchars(($j['teacher_role'] ?? '') === 'guru_bk' ? ($j['hasil_dicapai'] ?? $j['materi'] ?? '-') : '-') ?></td>
                             <td class="catatan-cell"><?= htmlspecialchars($j['notes'] ?? '-') ?></td>
                         </tr>
                     <?php endforeach; ?>

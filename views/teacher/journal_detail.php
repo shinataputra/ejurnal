@@ -2,6 +2,7 @@
 // views/teacher/journal_detail.php
 $className = str_replace('-', ' ', $journal['class_name'] ?? '');
 $formattedDate = date('d F Y', strtotime($journal['date']));
+$isGuruBk = (($current_user['role'] ?? '') === 'guru_bk');
 ?>
 <div>
     <!-- Header -->
@@ -36,18 +37,39 @@ $formattedDate = date('d F Y', strtotime($journal['date']));
             <p class="text-base md:text-lg font-semibold text-gray-900"><?= htmlspecialchars($journal['jam_ke']) ?></p>
         </div>
 
-        <!-- Materi -->
-        <div class="pb-4 md:pb-6 border-b border-gray-200">
-            <label class="block text-xs md:text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Materi</label>
-            <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
-                <p class="text-sm md:text-base text-gray-800 leading-relaxed whitespace-pre-wrap"><?= htmlspecialchars($journal['materi']) ?></p>
+        <?php if ($isGuruBk): ?>
+            <div class="pb-4 md:pb-6 border-b border-gray-200">
+                <label class="block text-xs md:text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Sasaran Kegiatan</label>
+                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+                    <p class="text-sm md:text-base text-gray-800 leading-relaxed whitespace-pre-wrap"><?= htmlspecialchars($journal['target_kegiatan'] ?? '-') ?></p>
+                </div>
             </div>
-        </div>
+            <div class="pb-4 md:pb-6 border-b border-gray-200">
+                <label class="block text-xs md:text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Kegiatan Layanan</label>
+                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+                    <p class="text-sm md:text-base text-gray-800 leading-relaxed whitespace-pre-wrap"><?= htmlspecialchars($journal['kegiatan_layanan'] ?? '-') ?></p>
+                </div>
+            </div>
+            <div class="pb-4 md:pb-6 border-b border-gray-200">
+                <label class="block text-xs md:text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Hasil yang Dicapai</label>
+                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+                    <p class="text-sm md:text-base text-gray-800 leading-relaxed whitespace-pre-wrap"><?= htmlspecialchars($journal['hasil_dicapai'] ?? $journal['materi']) ?></p>
+                </div>
+            </div>
+        <?php else: ?>
+            <!-- Materi -->
+            <div class="pb-4 md:pb-6 border-b border-gray-200">
+                <label class="block text-xs md:text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Materi</label>
+                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+                    <p class="text-sm md:text-base text-gray-800 leading-relaxed whitespace-pre-wrap"><?= htmlspecialchars($journal['materi']) ?></p>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <!-- Notes (if present) -->
         <?php if (!empty($journal['notes'])): ?>
             <div class="pb-4 md:pb-6 border-b border-gray-200">
-                <label class="block text-xs md:text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Catatan Guru</label>
+                <label class="block text-xs md:text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide"><?= $isGuruBk ? 'Catatan Guru BK' : 'Catatan Guru' ?></label>
                 <div class="bg-amber-50 rounded-lg p-3 md:p-4 border border-amber-200">
                     <p class="text-sm md:text-base text-amber-900 leading-relaxed whitespace-pre-wrap"><?= htmlspecialchars($journal['notes']) ?></p>
                 </div>

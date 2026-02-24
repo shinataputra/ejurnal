@@ -6,7 +6,7 @@ CREATE TABLE users (
   nip VARCHAR(50),
   username VARCHAR(80) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  role ENUM('teacher','admin') NOT NULL DEFAULT 'teacher',
+  role ENUM('teacher','guru_bk','admin') NOT NULL DEFAULT 'teacher',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -37,6 +37,9 @@ CREATE TABLE journals (
   jam_ke VARCHAR(30),
   materi TEXT,
   notes TEXT,
+  target_kegiatan TEXT,
+  kegiatan_layanan VARCHAR(120),
+  hasil_dicapai TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (class_id) REFERENCES classes(id),

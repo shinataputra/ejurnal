@@ -4,8 +4,8 @@
 <div class="space-y-6">
     <!-- Header -->
     <div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Tambah Guru Baru</h1>
-        <p class="text-gray-600">Daftarkan guru baru ke sistem</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Tambah Pengguna Baru</h1>
+        <p class="text-gray-600">Daftarkan pengguna baru ke sistem</p>
     </div>
 
     <!-- Form -->
@@ -13,7 +13,7 @@
         <div class="space-y-4">
             <!-- Name -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Guru <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Pengguna <span class="text-red-500">*</span></label>
                 <input type="text" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" required>
             </div>
 
@@ -42,6 +42,7 @@
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Role <span class="text-red-500">*</span></label>
                 <select name="role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
                     <option value="teacher">Guru</option>
+                    <option value="guru_bk">Guru BK</option>
                     <option value="admin">Admin</option>
                 </select>
             </div>

@@ -2,6 +2,7 @@
 $schoolName = (isset($this) && isset($this->settingsModel))
     ? ($this->settingsModel->get('school_name') ?? 'SMKN 1 Probolinggo')
     : 'SMKN 1 Probolinggo';
+$isGuruBk = (($user['role'] ?? '') === 'guru_bk');
 ?>
 <!doctype html>
 <html lang="id">
@@ -168,7 +169,7 @@ $schoolName = (isset($this) && isset($this->settingsModel))
         </div>
 
         <div class="judul">
-            Rekap Jurnal Mengajar Guru
+            Rekap Jurnal <?= $isGuruBk ? 'Layanan BK' : 'Mengajar' ?> Guru
         </div>
 
         <div class="info-guru">
@@ -190,7 +191,13 @@ $schoolName = (isset($this) && isset($this->settingsModel))
                         <th style="width:10%">Kelas</th>
                         <th style="width:7%">Jam</th>
                         <th style="width:16%">Mapel</th>
-                        <th style="width:28%">Materi</th>
+                        <?php if ($isGuruBk): ?>
+                            <th style="width:20%">Sasaran</th>
+                            <th style="width:16%">Layanan</th>
+                            <th style="width:16%">Hasil</th>
+                        <?php else: ?>
+                            <th style="width:28%">Materi</th>
+                        <?php endif; ?>
                         <th style="width:24%">Catatan</th>
                     </tr>
                 </thead>
@@ -203,7 +210,13 @@ $schoolName = (isset($this) && isset($this->settingsModel))
                             <td class="center"><?= htmlspecialchars(str_replace('-', ' ', $j['class_name'] ?? '-')) ?></td>
                             <td class="center"><?= htmlspecialchars((string)($j['jam_ke'] ?? '-')) ?></td>
                             <td><?= htmlspecialchars($j['subject_name'] ?? '-') ?></td>
-                            <td class="materi-cell"><?= htmlspecialchars($j['materi'] ?? '-') ?></td>
+                            <?php if ($isGuruBk): ?>
+                                <td class="materi-cell"><?= htmlspecialchars($j['target_kegiatan'] ?? '-') ?></td>
+                                <td class="materi-cell"><?= htmlspecialchars($j['kegiatan_layanan'] ?? '-') ?></td>
+                                <td class="materi-cell"><?= htmlspecialchars($j['hasil_dicapai'] ?? $j['materi'] ?? '-') ?></td>
+                            <?php else: ?>
+                                <td class="materi-cell"><?= htmlspecialchars($j['materi'] ?? '-') ?></td>
+                            <?php endif; ?>
                             <td class="catatan-cell"><?= htmlspecialchars($j['notes'] ?? '-') ?></td>
                         </tr>
                     <?php endforeach; ?>

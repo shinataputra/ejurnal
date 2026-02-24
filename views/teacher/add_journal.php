@@ -1,6 +1,9 @@
 <?php
 // views/teacher/add_journal.php
 ?>
+<?php
+$isGuruBk = !empty($is_guru_bk);
+?>
 <div>
     <!-- Header -->
     <div class="mb-6 md:mb-8">
@@ -44,15 +47,20 @@
 
             <div>
                 <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Mata Pelajaran <span class="text-red-500">*</span></label>
-                <select
-                    name="subject_id"
-                    class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                    required>
-                    <option value="">-- Pilih Mapel --</option>
-                    <?php foreach ($subjects as $s): ?>
-                        <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <?php if ($isGuruBk): ?>
+                    <input type="hidden" name="subject_id" value="<?= (int)($bk_subject_id ?? 0) ?>">
+                    <input type="text" value="Bimbingan Konseling" readonly class="w-full px-3 md:px-4 py-2 text-sm md:text-base bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+                <?php else: ?>
+                    <select
+                        name="subject_id"
+                        class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                        required>
+                        <option value="">-- Pilih Mapel --</option>
+                        <?php foreach ($subjects as $s): ?>
+                            <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -68,24 +76,54 @@
             <p class="text-xs text-gray-500 mt-1">Masukkan jam pelajaran, misal: 2-4 untuk jam ke-2 sampai 4</p>
         </div>
 
-        <!-- Materi -->
-        <div>
-            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Materi <span class="text-red-500">*</span></label>
-            <textarea
-                name="materi"
-                rows="4"
-                placeholder="Deskripsikan materi yang diajarkan..."
-                class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
-                required></textarea>
-        </div>
+        <?php if ($isGuruBk): ?>
+            <div>
+                <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Sasaran Kegiatan <span class="text-red-500">*</span></label>
+                <textarea
+                    name="target_kegiatan"
+                    rows="3"
+                    placeholder="Isi sasaran kegiatan..."
+                    class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+                    required></textarea>
+            </div>
+            <div>
+                <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Kegiatan Layanan <span class="text-red-500">*</span></label>
+                <select name="kegiatan_layanan" class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" required>
+                    <option value="">-- Pilih Kegiatan Layanan --</option>
+                    <?php foreach (($bk_service_options ?? []) as $option): ?>
+                        <option value="<?= htmlspecialchars($option) ?>"><?= htmlspecialchars($option) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Hasil yang Dicapai <span class="text-red-500">*</span></label>
+                <textarea
+                    name="hasil_dicapai"
+                    rows="4"
+                    placeholder="Isi hasil yang dicapai..."
+                    class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+                    required></textarea>
+            </div>
+        <?php else: ?>
+            <!-- Materi -->
+            <div>
+                <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Materi <span class="text-red-500">*</span></label>
+                <textarea
+                    name="materi"
+                    rows="4"
+                    placeholder="Deskripsikan materi yang diajarkan..."
+                    class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+                    required></textarea>
+            </div>
+        <?php endif; ?>
 
         <!-- Catatan Guru -->
         <div>
-            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Catatan Guru</label>
+            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2"><?= $isGuruBk ? 'Catatan Guru BK' : 'Catatan Guru' ?></label>
             <textarea
                 name="notes"
                 rows="3"
-                placeholder="Tambahkan catatan penting atau pengamatan khusus (opsional)"
+                placeholder="<?= $isGuruBk ? 'Tambahkan catatan guru BK (opsional)' : 'Tambahkan catatan penting atau pengamatan khusus (opsional)' ?>"
                 class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"></textarea>
         </div>
 
@@ -142,8 +180,13 @@
         <p class="font-semibold mb-2">📌 Catatan</p>
         <ul class="list-disc list-inside space-y-1">
             <li>Isi semua field yang bertanda <span class="text-red-500">*</span></li>
-            <li>Materi adalah wajib untuk mencatat topik pembelajaran</li>
-            <li>Catatan guru bersifat opsional untuk informasi tambahan</li>
+            <?php if ($isGuruBk): ?>
+                <li>Sasaran kegiatan, kegiatan layanan, dan hasil yang dicapai wajib diisi</li>
+                <li>Catatan guru BK bersifat opsional</li>
+            <?php else: ?>
+                <li>Materi adalah wajib untuk mencatat topik pembelajaran</li>
+                <li>Catatan guru bersifat opsional untuk informasi tambahan</li>
+            <?php endif; ?>
         </ul>
     </div>
 </div>

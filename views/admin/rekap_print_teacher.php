@@ -1,5 +1,6 @@
 <?php
 $page_title = 'Cetak Rekap - ' . htmlspecialchars($user['name']);
+$isGuruBk = (($user['role'] ?? '') === 'guru_bk');
 ?>
 
 <style>
@@ -41,7 +42,7 @@ $page_title = 'Cetak Rekap - ' . htmlspecialchars($user['name']);
 
     <!-- Print Header -->
     <div class="print-only mb-6 text-center border-b-2 border-gray-800 pb-4">
-        <h2 class="text-2xl font-bold">REKAP JURNAL MENGAJAR</h2>
+        <h2 class="text-2xl font-bold">REKAP JURNAL <?= $isGuruBk ? 'LAYANAN BK' : 'MENGAJAR' ?></h2>
         <p class="text-lg font-semibold"><?= htmlspecialchars($user['name']) ?></p>
         <p class="text-base"><?= htmlspecialchars($user['username']) ?></p>
         <p class="text-lg"><?= htmlspecialchars($month_display) ?></p>
@@ -58,7 +59,13 @@ $page_title = 'Cetak Rekap - ' . htmlspecialchars($user['name']);
                         <th class="px-3 py-2 text-left font-semibold">Kelas</th>
                         <th class="px-3 py-2 text-left font-semibold">Mata Pelajaran</th>
                         <th class="px-3 py-2 text-left font-semibold">Jam Ke</th>
-                        <th class="px-3 py-2 text-left font-semibold">Materi</th>
+                        <?php if ($isGuruBk): ?>
+                            <th class="px-3 py-2 text-left font-semibold">Sasaran</th>
+                            <th class="px-3 py-2 text-left font-semibold">Layanan</th>
+                            <th class="px-3 py-2 text-left font-semibold">Hasil</th>
+                        <?php else: ?>
+                            <th class="px-3 py-2 text-left font-semibold">Materi</th>
+                        <?php endif; ?>
                         <th class="px-3 py-2 text-left font-semibold">Catatan</th>
                     </tr>
                 </thead>
@@ -69,7 +76,13 @@ $page_title = 'Cetak Rekap - ' . htmlspecialchars($user['name']);
                             <td class="px-3 py-2"><?= htmlspecialchars($j['class_name']) ?></td>
                             <td class="px-3 py-2"><?= htmlspecialchars($j['subject_name']) ?></td>
                             <td class="px-3 py-2 text-center"><?= $j['jam_ke'] ?></td>
-                            <td class="px-3 py-2"><?= htmlspecialchars(substr($j['materi'], 0, 50)) . (strlen($j['materi']) > 50 ? '...' : '') ?></td>
+                            <?php if ($isGuruBk): ?>
+                                <td class="px-3 py-2"><?= htmlspecialchars(substr((string)($j['target_kegiatan'] ?? ''), 0, 40)) ?></td>
+                                <td class="px-3 py-2"><?= htmlspecialchars((string)($j['kegiatan_layanan'] ?? '-')) ?></td>
+                                <td class="px-3 py-2"><?= htmlspecialchars(substr((string)($j['hasil_dicapai'] ?? $j['materi'] ?? ''), 0, 40)) ?></td>
+                            <?php else: ?>
+                                <td class="px-3 py-2"><?= htmlspecialchars(substr($j['materi'], 0, 50)) . (strlen($j['materi']) > 50 ? '...' : '') ?></td>
+                            <?php endif; ?>
                             <td class="px-3 py-2 text-xs"><?= htmlspecialchars(substr($j['notes'] ?? '', 0, 30)) ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -87,10 +100,25 @@ $page_title = 'Cetak Rekap - ' . htmlspecialchars($user['name']);
                     </div>
                     <p class="font-semibold text-gray-800 mb-1"><?= htmlspecialchars($j['subject_name']) ?></p>
                     <p class="text-xs text-gray-600 mb-2"><?= htmlspecialchars($j['class_name']) ?></p>
-                    <div class="bg-gray-50 rounded p-2 mb-2 text-sm">
-                        <p class="font-medium text-gray-700">Materi:</p>
-                        <p class="text-gray-600"><?= htmlspecialchars($j['materi']) ?></p>
-                    </div>
+                    <?php if ($isGuruBk): ?>
+                        <div class="bg-gray-50 rounded p-2 mb-2 text-sm">
+                            <p class="font-medium text-gray-700">Sasaran:</p>
+                            <p class="text-gray-600"><?= htmlspecialchars($j['target_kegiatan'] ?? '-') ?></p>
+                        </div>
+                        <div class="bg-gray-50 rounded p-2 mb-2 text-sm">
+                            <p class="font-medium text-gray-700">Layanan:</p>
+                            <p class="text-gray-600"><?= htmlspecialchars($j['kegiatan_layanan'] ?? '-') ?></p>
+                        </div>
+                        <div class="bg-gray-50 rounded p-2 mb-2 text-sm">
+                            <p class="font-medium text-gray-700">Hasil:</p>
+                            <p class="text-gray-600"><?= htmlspecialchars($j['hasil_dicapai'] ?? $j['materi']) ?></p>
+                        </div>
+                    <?php else: ?>
+                        <div class="bg-gray-50 rounded p-2 mb-2 text-sm">
+                            <p class="font-medium text-gray-700">Materi:</p>
+                            <p class="text-gray-600"><?= htmlspecialchars($j['materi']) ?></p>
+                        </div>
+                    <?php endif; ?>
                     <?php if (!empty($j['notes'])): ?>
                         <div class="bg-yellow-50 rounded p-2 text-sm border-l-2 border-yellow-400">
                             <p class="font-medium text-gray-700">Catatan:</p>

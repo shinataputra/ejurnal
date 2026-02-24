@@ -1,5 +1,6 @@
 <?php
 // views/teacher/list_journal.php
+$isGuruBk = (($current_user['role'] ?? '') === 'guru_bk');
 ?>
 <div class="space-y-4 md:space-y-6">
     <!-- Header -->
@@ -71,10 +72,19 @@
                         </div>
                     </div>
 
-                    <!-- Materi -->
+                    <!-- Materi / BK -->
                     <div class="mb-3 md:mb-4 pb-3 md:pb-4 border-t border-gray-200">
-                        <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Materi</p>
-                        <p class="text-xs md:text-sm text-gray-700 line-clamp-2"><?= htmlspecialchars($j['materi']) ?></p>
+                        <?php if ($isGuruBk): ?>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Sasaran Kegiatan</p>
+                            <p class="text-xs md:text-sm text-gray-700"><?= htmlspecialchars($j['target_kegiatan'] ?? '-') ?></p>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1 mt-2">Kegiatan Layanan</p>
+                            <p class="text-xs md:text-sm text-gray-700"><?= htmlspecialchars($j['kegiatan_layanan'] ?? '-') ?></p>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1 mt-2">Hasil yang Dicapai</p>
+                            <p class="text-xs md:text-sm text-gray-700 line-clamp-2"><?= htmlspecialchars($j['hasil_dicapai'] ?? $j['materi']) ?></p>
+                        <?php else: ?>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Materi</p>
+                            <p class="text-xs md:text-sm text-gray-700 line-clamp-2"><?= htmlspecialchars($j['materi']) ?></p>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Actions -->

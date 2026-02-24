@@ -4,8 +4,8 @@
 <div class="max-w-2xl mx-auto space-y-6">
     <!-- Header -->
     <div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Edit Guru</h1>
-        <p class="text-gray-600">Perbarui data guru</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Edit Pengguna</h1>
+        <p class="text-gray-600">Perbarui data pengguna</p>
     </div>
 
     <!-- Error Message -->
@@ -41,6 +41,7 @@
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Role <span class="text-red-600">*</span></label>
                 <select name="role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="teacher" <?= $user['role'] === 'teacher' ? 'selected' : '' ?>>Guru (Teacher)</option>
+                    <option value="guru_bk" <?= $user['role'] === 'guru_bk' ? 'selected' : '' ?>>Guru BK</option>
                     <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Administrator</option>
                 </select>
                 <p class="text-xs text-gray-500 mt-1">Tentukan peran pengguna dalam sistem</p>
@@ -60,6 +61,6 @@
 
     <!-- Password Reset Warning -->
     <div class="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-lg">
-        <p class="text-sm"><strong>💡 Catatan:</strong> Untuk mengganti password guru, gunakan fitur "Reset Password" di halaman daftar guru.</p>
+        <p class="text-sm"><strong>💡 Catatan:</strong> Untuk mengganti password pengguna, gunakan fitur "Reset Password" di halaman daftar pengguna.</p>
     </div>
 </div>

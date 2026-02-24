@@ -20,17 +20,17 @@ class User extends Model
 
     public function allTeachers()
     {
-        $stmt = $this->db->query("SELECT * FROM users WHERE role='teacher' ORDER BY name");
+        $stmt = $this->db->query("SELECT * FROM users WHERE role IN ('teacher', 'guru_bk') ORDER BY name");
         return $stmt->fetchAll();
     }
 
     public function countTeachers($search = '')
     {
         if (!empty($search)) {
-            $stmt = $this->db->prepare("SELECT COUNT(*) as c FROM users WHERE role='teacher' AND name LIKE :search");
+            $stmt = $this->db->prepare("SELECT COUNT(*) as c FROM users WHERE role IN ('teacher', 'guru_bk') AND name LIKE :search");
             $stmt->execute([':search' => '%' . $search . '%']);
         } else {
-            $stmt = $this->db->query("SELECT COUNT(*) as c FROM users WHERE role='teacher'");
+            $stmt = $this->db->query("SELECT COUNT(*) as c FROM users WHERE role IN ('teacher', 'guru_bk')");
         }
         return (int)$stmt->fetch()['c'];
     }
@@ -38,12 +38,12 @@ class User extends Model
     public function getTeachersPage($limit = 25, $offset = 0, $search = '')
     {
         if (!empty($search)) {
-            $stmt = $this->db->prepare("SELECT * FROM users WHERE role='teacher' AND name LIKE :search ORDER BY name LIMIT :limit OFFSET :offset");
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE role IN ('teacher', 'guru_bk') AND name LIKE :search ORDER BY name LIMIT :limit OFFSET :offset");
             $stmt->bindValue(':search', '%' . $search . '%');
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         } else {
-            $stmt = $this->db->prepare("SELECT * FROM users WHERE role='teacher' ORDER BY name LIMIT :limit OFFSET :offset");
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE role IN ('teacher', 'guru_bk') ORDER BY name LIMIT :limit OFFSET :offset");
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         }
@@ -77,7 +77,7 @@ class User extends Model
 
     public function delete($id)
     {
-        $stmt = $this->db->prepare('DELETE FROM users WHERE id = :id AND role = :role');
-        return $stmt->execute([':id' => $id, ':role' => 'teacher']);
+        $stmt = $this->db->prepare("DELETE FROM users WHERE id = :id AND role IN ('teacher', 'guru_bk')");
+        return $stmt->execute([':id' => $id]);
     }
 }

@@ -21,7 +21,7 @@ $page_title = 'Rekap Jurnal Per Guru';
                     <option value="">-- Pilih Guru --</option>
                     <?php foreach ($teachers as $t): ?>
                         <option value="<?= $t['id'] ?>" <?= ($t['id'] == $teacher_id) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($t['name']) ?>
+                            <?= htmlspecialchars($t['name']) ?> (<?= htmlspecialchars(($t['role'] ?? '') === 'guru_bk' ? 'Guru BK' : 'Guru') ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -79,6 +79,7 @@ $page_title = 'Rekap Jurnal Per Guru';
                 break;
             }
         }
+        $isGuruBk = (($selectedTeacher['role'] ?? '') === 'guru_bk');
     ?>
         <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <h2 class="text-2xl font-bold text-gray-800">
@@ -102,7 +103,13 @@ $page_title = 'Rekap Jurnal Per Guru';
                                     <th class="px-3 py-2 text-left font-semibold">Kelas</th>
                                     <th class="px-3 py-2 text-left font-semibold">Mata Pelajaran</th>
                                     <th class="px-3 py-2 text-left font-semibold">Jam Ke</th>
-                                    <th class="px-3 py-2 text-left font-semibold">Materi</th>
+                                    <?php if ($isGuruBk): ?>
+                                        <th class="px-3 py-2 text-left font-semibold">Sasaran</th>
+                                        <th class="px-3 py-2 text-left font-semibold">Layanan</th>
+                                        <th class="px-3 py-2 text-left font-semibold">Hasil</th>
+                                    <?php else: ?>
+                                        <th class="px-3 py-2 text-left font-semibold">Materi</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -112,7 +119,13 @@ $page_title = 'Rekap Jurnal Per Guru';
                                         <td class="px-3 py-2"><?= htmlspecialchars($j['class_name']) ?></td>
                                         <td class="px-3 py-2"><?= htmlspecialchars($j['subject_name']) ?></td>
                                         <td class="px-3 py-2 text-center"><?= $j['jam_ke'] ?></td>
-                                        <td class="px-3 py-2 text-sm"><?= htmlspecialchars(substr($j['materi'], 0, 60)) . (strlen($j['materi']) > 60 ? '...' : '') ?></td>
+                                        <?php if ($isGuruBk): ?>
+                                            <td class="px-3 py-2 text-sm"><?= htmlspecialchars(substr((string)($j['target_kegiatan'] ?? ''), 0, 40)) ?></td>
+                                            <td class="px-3 py-2 text-sm"><?= htmlspecialchars((string)($j['kegiatan_layanan'] ?? '-')) ?></td>
+                                            <td class="px-3 py-2 text-sm"><?= htmlspecialchars(substr((string)($j['hasil_dicapai'] ?? $j['materi'] ?? ''), 0, 40)) ?></td>
+                                        <?php else: ?>
+                                            <td class="px-3 py-2 text-sm"><?= htmlspecialchars(substr($j['materi'], 0, 60)) . (strlen($j['materi']) > 60 ? '...' : '') ?></td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

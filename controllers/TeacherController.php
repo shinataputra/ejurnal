@@ -10,6 +10,20 @@ require_once __DIR__ . '/../models/User.php';
 
 class TeacherController extends Controller
 {
+    protected const BK_SERVICE_OPTIONS = [
+        'Konseling individu',
+        'Konseling kelompok',
+        'Bimbingan kelompok',
+        'Bimbingan klasikal',
+        'Konsultasi',
+        'Kolaborasi',
+        'Mediasi',
+        'Alih tangan kasus/Referal',
+        'Kunjungan rumah/home visit',
+        'Layanan advokasi',
+        'Konferensi kasus',
+    ];
+
     protected $journalModel;
     protected $classModel;
     protected $subjectModel;
@@ -29,10 +43,37 @@ class TeacherController extends Controller
 
     protected function requireTeacher()
     {
-        if (empty($_SESSION['user']) || ($_SESSION['user']['role'] ?? '') !== 'teacher') {
+        $role = $_SESSION['user']['role'] ?? '';
+        if (empty($_SESSION['user']) || !in_array($role, ['teacher', 'guru_bk'], true)) {
             $_SESSION['flash_error'] = 'Silakan login sebagai guru untuk mengakses halaman ini.';
             $this->redirect('index.php?p=login');
         }
+    }
+
+    protected function isGuruBk()
+    {
+        return (($_SESSION['user']['role'] ?? '') === 'guru_bk');
+    }
+
+    protected function findBkSubjectId(array $subjects)
+    {
+        foreach ($subjects as $subject) {
+            $name = strtolower(trim((string)($subject['name'] ?? '')));
+            $name = preg_replace('/\s+/', ' ', $name);
+            if ($name === 'bimbingan konseling' || $name === 'bimbingan dan konseling') {
+                return (int)$subject['id'];
+            }
+        }
+
+        // Fallback: match any subject containing both words.
+        foreach ($subjects as $subject) {
+            $name = strtolower((string)($subject['name'] ?? ''));
+            if (strpos($name, 'bimbingan') !== false && strpos($name, 'konseling') !== false) {
+                return (int)$subject['id'];
+            }
+        }
+
+        return 0;
     }
 
     public function dashboard()
@@ -49,22 +90,73 @@ class TeacherController extends Controller
     public function add()
     {
         $this->requireTeacher();
+        $isGuruBk = $this->isGuruBk();
+        $subjects = $this->subjectModel->all();
+        $bkSubjectId = $this->findBkSubjectId($subjects);
+        if ($isGuruBk && $bkSubjectId <= 0) {
+            // Auto-create default BK subject when missing.
+            $this->subjectModel->create('Bimbingan Konseling');
+            $subjects = $this->subjectModel->all();
+            $bkSubjectId = $this->findBkSubjectId($subjects);
+            if ($bkSubjectId <= 0) {
+                $_SESSION['flash_error'] = 'Mapel "Bimbingan Konseling" belum tersedia. Hubungi admin.';
+                $this->redirect('index.php?p=teacher/dashboard');
+                return;
+            }
+        }
+        if ($isGuruBk && !$this->journalModel->supportsBkFields()) {
+            $_SESSION['flash_error'] = 'Database belum mendukung jurnal Guru BK. Jalankan migrasi database terlebih dahulu.';
+            $this->redirect('index.php?p=teacher/dashboard');
+            return;
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $current = $_SESSION['user'];
-            $this->journalModel->create([
-                'user_id' => $current['id'],
-                'date' => $_POST['date'] ?? date('Y-m-d'),
-                'class_id' => $_POST['class_id'] ?? 0,
-                'subject_id' => $_POST['subject_id'] ?? 0,
-                'jam_ke' => $_POST['jam_ke'] ?? '',
-                'materi' => $_POST['materi'] ?? '',
-                'notes' => $_POST['notes'] ?? ''
-            ]);
-            $_SESSION['flash_success'] = 'Jurnal disimpan.';
-            $this->redirect('index.php?p=teacher/dashboard');
+            $subjectId = (int)($_POST['subject_id'] ?? 0);
+            if ($isGuruBk && $bkSubjectId > 0) {
+                $subjectId = $bkSubjectId;
+            }
+
+            $targetKegiatan = trim((string)($_POST['target_kegiatan'] ?? ''));
+            $kegiatanLayanan = trim((string)($_POST['kegiatan_layanan'] ?? ''));
+            $hasilDicapai = trim((string)($_POST['hasil_dicapai'] ?? ''));
+            $notes = trim((string)($_POST['notes'] ?? ''));
+
+            if ($isGuruBk) {
+                if ($targetKegiatan === '' || $kegiatanLayanan === '' || $hasilDicapai === '') {
+                    $_SESSION['flash_error'] = 'Form Guru BK belum lengkap.';
+                    $this->redirect('index.php?p=teacher/add');
+                    return;
+                }
+
+                if (!in_array($kegiatanLayanan, self::BK_SERVICE_OPTIONS, true)) {
+                    $_SESSION['flash_error'] = 'Kegiatan layanan tidak valid.';
+                    $this->redirect('index.php?p=teacher/add');
+                    return;
+                }
+            }
+
+            try {
+                $this->journalModel->create([
+                    'user_id' => $current['id'],
+                    'date' => $_POST['date'] ?? date('Y-m-d'),
+                    'class_id' => $_POST['class_id'] ?? 0,
+                    'subject_id' => $subjectId,
+                    'jam_ke' => $_POST['jam_ke'] ?? '',
+                    'materi' => $isGuruBk ? $hasilDicapai : ($_POST['materi'] ?? ''),
+                    'notes' => $notes,
+                    'target_kegiatan' => $isGuruBk ? $targetKegiatan : '',
+                    'kegiatan_layanan' => $isGuruBk ? $kegiatanLayanan : '',
+                    'hasil_dicapai' => $isGuruBk ? $hasilDicapai : ''
+                ]);
+                $_SESSION['flash_success'] = 'Jurnal disimpan.';
+                $this->redirect('index.php?p=teacher/dashboard');
+            } catch (\PDOException $e) {
+                $_SESSION['flash_error'] = 'Gagal menyimpan jurnal: ' . $e->getMessage();
+                $this->redirect('index.php?p=teacher/add');
+            }
         }
         $classes = $this->classModel->all();
-        $subjects = $this->subjectModel->all();
 
         // build jenjang list and rombel mapping from class names
         $jenjangs = [];
@@ -83,6 +175,9 @@ class TeacherController extends Controller
         $this->render('teacher/add_journal.php', [
             'classes' => $classes,
             'subjects' => $subjects,
+            'is_guru_bk' => $isGuruBk,
+            'bk_subject_id' => $bkSubjectId,
+            'bk_service_options' => self::BK_SERVICE_OPTIONS,
             'jenjangs' => $jenjangs,
             'rombelsByJenjang' => $rombelsByJenjang,
             'current_user' => $_SESSION['user'] ?? null
@@ -276,6 +371,24 @@ class TeacherController extends Controller
         $this->requireTeacher();
         $id = $_GET['id'] ?? 0;
         $current_user = $_SESSION['user'];
+        $isGuruBk = $this->isGuruBk();
+        $subjects = $this->subjectModel->all();
+        $bkSubjectId = $this->findBkSubjectId($subjects);
+        if ($isGuruBk && $bkSubjectId <= 0) {
+            $this->subjectModel->create('Bimbingan Konseling');
+            $subjects = $this->subjectModel->all();
+            $bkSubjectId = $this->findBkSubjectId($subjects);
+            if ($bkSubjectId <= 0) {
+                $_SESSION['flash_error'] = 'Mapel "Bimbingan Konseling" belum tersedia. Hubungi admin.';
+                $this->redirect('index.php?p=teacher/list');
+                return;
+            }
+        }
+        if ($isGuruBk && !$this->journalModel->supportsBkFields()) {
+            $_SESSION['flash_error'] = 'Database belum mendukung jurnal Guru BK. Jalankan migrasi database terlebih dahulu.';
+            $this->redirect('index.php?p=teacher/list');
+            return;
+        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Preferred source from form
@@ -304,13 +417,40 @@ class TeacherController extends Controller
                 return;
             }
 
+            $subjectId = (int)($_POST['subject_id'] ?? 0);
+            if ($isGuruBk && $bkSubjectId > 0) {
+                $subjectId = $bkSubjectId;
+            }
+
+            $targetKegiatan = trim((string)($_POST['target_kegiatan'] ?? ''));
+            $kegiatanLayanan = trim((string)($_POST['kegiatan_layanan'] ?? ''));
+            $hasilDicapai = trim((string)($_POST['hasil_dicapai'] ?? ''));
+            $notes = trim((string)($_POST['notes'] ?? ''));
+
+            if ($isGuruBk) {
+                if ($targetKegiatan === '' || $kegiatanLayanan === '' || $hasilDicapai === '') {
+                    $_SESSION['flash_error'] = 'Form Guru BK belum lengkap.';
+                    $this->redirect('index.php?p=teacher/edit&id=' . (int)$id);
+                    return;
+                }
+
+                if (!in_array($kegiatanLayanan, self::BK_SERVICE_OPTIONS, true)) {
+                    $_SESSION['flash_error'] = 'Kegiatan layanan tidak valid.';
+                    $this->redirect('index.php?p=teacher/edit&id=' . (int)$id);
+                    return;
+                }
+            }
+
             $ok = $this->journalModel->update($id, $current_user['id'], [
                 'date' => $_POST['date'] ?? date('Y-m-d'),
                 'class_id' => $class_id,
-                'subject_id' => $_POST['subject_id'] ?? 0,
+                'subject_id' => $subjectId,
                 'jam_ke' => $_POST['jam_ke'] ?? '',
-                'materi' => $_POST['materi'] ?? '',
-                'notes' => $_POST['notes'] ?? ''
+                'materi' => $isGuruBk ? $hasilDicapai : ($_POST['materi'] ?? ''),
+                'notes' => $notes,
+                'target_kegiatan' => $isGuruBk ? $targetKegiatan : '',
+                'kegiatan_layanan' => $isGuruBk ? $kegiatanLayanan : '',
+                'hasil_dicapai' => $isGuruBk ? $hasilDicapai : ''
             ]);
 
             if ($ok) {
@@ -330,7 +470,9 @@ class TeacherController extends Controller
         }
 
         $classes = $this->classModel->all();
-        $subjects = $this->subjectModel->all();
+        if ($isGuruBk && empty($journal['target_kegiatan']) && !empty($journal['materi'])) {
+            $journal['hasil_dicapai'] = $journal['materi'];
+        }
 
         // build jenjang list and rombel mapping from class names
         $jenjangs = [];
@@ -349,6 +491,9 @@ class TeacherController extends Controller
             'journal' => $journal,
             'classes' => $classes,
             'subjects' => $subjects,
+            'is_guru_bk' => $isGuruBk,
+            'bk_subject_id' => $bkSubjectId,
+            'bk_service_options' => self::BK_SERVICE_OPTIONS,
             'jenjangs' => $jenjangs,
             'rombelsByJenjang' => $rombelsByJenjang,
             'current_user' => $current_user
@@ -616,7 +761,7 @@ class TeacherController extends Controller
                     'name' => $name,
                     'nip' => $nip,
                     'username' => $username,
-                    'role' => 'teacher'
+                    'role' => $current_user['role']
                 ]);
                 $_SESSION['user']['name'] = $name;
                 $_SESSION['user']['nip'] = $nip;

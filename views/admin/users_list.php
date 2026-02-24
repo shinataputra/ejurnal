@@ -4,8 +4,8 @@
 <div class="space-y-6">
     <!-- Header -->
     <div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Kelola Guru</h1>
-        <p class="text-gray-600">Daftar semua guru dan atur password</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Kelola Pengguna</h1>
+        <p class="text-gray-600">Daftar pengguna guru dan atur password</p>
     </div>
 
     <!-- Success Message -->
@@ -28,7 +28,7 @@
                 <input
                     type="text"
                     name="search"
-                    placeholder="Cari nama guru..."
+                    placeholder="Cari nama pengguna..."
                     value="<?= htmlspecialchars($search) ?>"
                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
@@ -44,13 +44,13 @@
 
         <!-- Add Button -->
         <a href="?p=admin/usersAdd" class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition whitespace-nowrap">
-            ➕ Tambah Guru
+            ➕ Tambah Pengguna
         </a>
     </div>
 
     <!-- Result Info -->
     <div class="text-sm text-gray-600">
-        Menampilkan <strong><?= count($teachers) ?></strong> dari <strong><?= $total ?></strong> guru
+        Menampilkan <strong><?= count($teachers) ?></strong> dari <strong><?= $total ?></strong> pengguna
         <?php if (!empty($search)): ?>
             (hasil pencarian: "<?= htmlspecialchars($search) ?>")
         <?php endif; ?>
@@ -61,9 +61,9 @@
         <div class="bg-white rounded-lg shadow p-12 text-center">
             <p class="text-gray-600 text-lg">
                 <?php if (!empty($search)): ?>
-                    Tidak ada guru dengan nama "<?= htmlspecialchars($search) ?>"
+                    Tidak ada pengguna dengan nama "<?= htmlspecialchars($search) ?>"
                 <?php else: ?>
-                    Belum ada guru terdaftar
+                    Belum ada pengguna terdaftar
                 <?php endif; ?>
             </p>
         </div>
@@ -76,6 +76,7 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Nama Guru</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">NIP</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Username</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Role</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Aksi</th>
                     </tr>
                 </thead>
@@ -85,6 +86,7 @@
                             <td class="px-6 py-4 text-sm font-medium text-gray-900"><?= htmlspecialchars($t['name']) ?></td>
                             <td class="px-6 py-4 text-sm text-gray-600"><?= htmlspecialchars($t['nip']) ?></td>
                             <td class="px-6 py-4 text-sm text-gray-600"><?= htmlspecialchars($t['username']) ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><?= htmlspecialchars($t['role'] === 'guru_bk' ? 'Guru BK' : 'Guru') ?></td>
                             <td class="px-6 py-4 text-sm space-x-2">
                                 <a href="?p=admin/usersEdit&id=<?= $t['id'] ?>" class="inline-block bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded text-xs font-semibold transition">
                                     ✏️ Edit
@@ -109,6 +111,7 @@
                     <div class="mb-3">
                         <p class="font-semibold text-gray-900"><?= htmlspecialchars($t['name']) ?></p>
                         <p class="text-xs text-gray-500">NIP: <?= htmlspecialchars($t['nip']) ?></p>
+                        <p class="text-xs text-gray-500">Role: <?= htmlspecialchars($t['role'] === 'guru_bk' ? 'Guru BK' : 'Guru') ?></p>
                     </div>
                     <p class="text-sm text-gray-600 mb-3">Username: <span class="font-mono"><?= htmlspecialchars($t['username']) ?></span></p>
                     <div class="space-y-2">

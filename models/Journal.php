@@ -4,10 +4,75 @@ require_once __DIR__ . '/../core/Model.php';
 
 class Journal extends Model
 {
+    private $journalColumns = null;
+
+    private function getJournalColumns()
+    {
+        if ($this->journalColumns !== null) {
+            return $this->journalColumns;
+        }
+
+        $stmt = $this->db->query("SHOW COLUMNS FROM journals");
+        $this->journalColumns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        return $this->journalColumns;
+    }
+
+    public function supportsBkFields()
+    {
+        $columns = $this->getJournalColumns();
+        return in_array('target_kegiatan', $columns, true)
+            && in_array('kegiatan_layanan', $columns, true)
+            && in_array('hasil_dicapai', $columns, true);
+    }
+
     public function create($data)
     {
-        $stmt = $this->db->prepare('INSERT INTO journals (user_id,date,class_id,subject_id,jam_ke,materi,notes) VALUES (:user_id,:date,:class_id,:subject_id,:jam_ke,:materi,:notes)');
-        return $stmt->execute($data);
+        $columns = $this->getJournalColumns();
+        $params = [
+            ':user_id' => $data['user_id'] ?? 0,
+            ':date' => $data['date'] ?? date('Y-m-d'),
+            ':class_id' => $data['class_id'] ?? 0,
+            ':subject_id' => $data['subject_id'] ?? 0,
+            ':jam_ke' => $data['jam_ke'] ?? '',
+            ':materi' => $data['materi'] ?? '',
+            ':notes' => $data['notes'] ?? '',
+        ];
+
+        if (in_array('target_kegiatan', $columns, true)) {
+            $params[':target_kegiatan'] = $data['target_kegiatan'] ?? '';
+        }
+        if (in_array('kegiatan_layanan', $columns, true)) {
+            $params[':kegiatan_layanan'] = $data['kegiatan_layanan'] ?? '';
+        }
+        if (in_array('hasil_dicapai', $columns, true)) {
+            $params[':hasil_dicapai'] = $data['hasil_dicapai'] ?? '';
+        }
+
+        $fieldMap = [
+            'user_id' => ':user_id',
+            'date' => ':date',
+            'class_id' => ':class_id',
+            'subject_id' => ':subject_id',
+            'jam_ke' => ':jam_ke',
+            'materi' => ':materi',
+            'notes' => ':notes',
+            'target_kegiatan' => ':target_kegiatan',
+            'kegiatan_layanan' => ':kegiatan_layanan',
+            'hasil_dicapai' => ':hasil_dicapai',
+        ];
+
+        $insertFields = [];
+        $insertPlaceholders = [];
+        foreach ($fieldMap as $field => $placeholder) {
+            if (in_array($field, $columns, true) && isset($params[$placeholder])) {
+                $insertFields[] = $field;
+                $insertPlaceholders[] = $placeholder;
+            }
+        }
+
+        $sql = 'INSERT INTO journals (' . implode(',', $insertFields) . ') VALUES (' . implode(',', $insertPlaceholders) . ')';
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
     }
 
     public function countByUserAndDate($user_id, $date)
@@ -88,8 +153,9 @@ class Journal extends Model
 
     public function update($id, $user_id, $data)
     {
-        $stmt = $this->db->prepare('UPDATE journals SET date = :date, class_id = :class_id, subject_id = :subject_id, jam_ke = :jam_ke, materi = :materi, notes = :notes WHERE id = :id AND user_id = :u');
-        return $stmt->execute([
+        $columns = $this->getJournalColumns();
+
+        $params = [
             ':date' => $data['date'],
             ':class_id' => $data['class_id'],
             ':subject_id' => $data['subject_id'],
@@ -98,7 +164,39 @@ class Journal extends Model
             ':notes' => $data['notes'],
             ':id' => $id,
             ':u' => $user_id
-        ]);
+        ];
+
+        if (in_array('target_kegiatan', $columns, true)) {
+            $params[':target_kegiatan'] = $data['target_kegiatan'] ?? '';
+        }
+        if (in_array('kegiatan_layanan', $columns, true)) {
+            $params[':kegiatan_layanan'] = $data['kegiatan_layanan'] ?? '';
+        }
+        if (in_array('hasil_dicapai', $columns, true)) {
+            $params[':hasil_dicapai'] = $data['hasil_dicapai'] ?? '';
+        }
+
+        $setParts = [
+            'date = :date',
+            'class_id = :class_id',
+            'subject_id = :subject_id',
+            'jam_ke = :jam_ke',
+            'materi = :materi',
+            'notes = :notes',
+        ];
+        if (in_array('target_kegiatan', $columns, true)) {
+            $setParts[] = 'target_kegiatan = :target_kegiatan';
+        }
+        if (in_array('kegiatan_layanan', $columns, true)) {
+            $setParts[] = 'kegiatan_layanan = :kegiatan_layanan';
+        }
+        if (in_array('hasil_dicapai', $columns, true)) {
+            $setParts[] = 'hasil_dicapai = :hasil_dicapai';
+        }
+
+        $sql = 'UPDATE journals SET ' . implode(', ', $setParts) . ' WHERE id = :id AND user_id = :u';
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
     }
 
     public function delete($id, $user_id)
@@ -117,7 +215,7 @@ class Journal extends Model
 
     public function rekapByTeacher($month, $year)
     {
-        $sql = 'SELECT u.id, u.name, u.username, COUNT(*) as total_entries, COUNT(DISTINCT c.id) as classes_taught, COUNT(DISTINCT j.date) as days_filled, COUNT(DISTINCT s.id) as subjects_covered FROM journals j JOIN users u ON j.user_id = u.id JOIN classes c ON j.class_id = c.id JOIN subjects s ON j.subject_id = s.id WHERE MONTH(j.date) = :month AND YEAR(j.date) = :year AND u.role = "teacher" GROUP BY u.id, u.name, u.username ORDER BY u.name ASC';
+        $sql = 'SELECT u.id, u.name, u.username, COUNT(*) as total_entries, COUNT(DISTINCT c.id) as classes_taught, COUNT(DISTINCT j.date) as days_filled, COUNT(DISTINCT s.id) as subjects_covered FROM journals j JOIN users u ON j.user_id = u.id JOIN classes c ON j.class_id = c.id JOIN subjects s ON j.subject_id = s.id WHERE MONTH(j.date) = :month AND YEAR(j.date) = :year AND u.role IN ("teacher", "guru_bk") GROUP BY u.id, u.name, u.username ORDER BY u.name ASC';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':month' => $month, ':year' => $year]);
         return $stmt->fetchAll();
@@ -125,7 +223,7 @@ class Journal extends Model
 
     public function getJournalsByMonthAllUsers($month, $year)
     {
-        $sql = 'SELECT j.*, c.name as class_name, s.name as subject_name, u.name as teacher_name FROM journals j JOIN classes c ON j.class_id = c.id JOIN subjects s ON j.subject_id = s.id JOIN users u ON j.user_id = u.id WHERE MONTH(j.date) = :month AND YEAR(j.date) = :year ORDER BY c.name, j.date DESC';
+        $sql = 'SELECT j.*, c.name as class_name, s.name as subject_name, u.name as teacher_name, u.role as teacher_role FROM journals j JOIN classes c ON j.class_id = c.id JOIN subjects s ON j.subject_id = s.id JOIN users u ON j.user_id = u.id WHERE MONTH(j.date) = :month AND YEAR(j.date) = :year ORDER BY c.name, j.date DESC';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':month' => $month, ':year' => $year]);
         return $stmt->fetchAll();
@@ -133,7 +231,7 @@ class Journal extends Model
 
     public function getJournalsByMonthAndClass($month, $year, $class_id)
     {
-        $sql = 'SELECT j.*, c.name as class_name, s.name as subject_name, u.name as teacher_name FROM journals j JOIN classes c ON j.class_id = c.id JOIN subjects s ON j.subject_id = s.id JOIN users u ON j.user_id = u.id WHERE MONTH(j.date) = :month AND YEAR(j.date) = :year AND j.class_id = :class_id ORDER BY j.date DESC';
+        $sql = 'SELECT j.*, c.name as class_name, s.name as subject_name, u.name as teacher_name, u.role as teacher_role FROM journals j JOIN classes c ON j.class_id = c.id JOIN subjects s ON j.subject_id = s.id JOIN users u ON j.user_id = u.id WHERE MONTH(j.date) = :month AND YEAR(j.date) = :year AND j.class_id = :class_id ORDER BY j.date DESC';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':month' => $month, ':year' => $year, ':class_id' => $class_id]);
         return $stmt->fetchAll();
