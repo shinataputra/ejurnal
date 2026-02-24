@@ -107,12 +107,18 @@ $page_title = 'Rekap Jurnal Per Kelas';
                             </thead>
                             <tbody>
                                 <?php foreach ($journals as $j): ?>
+                                    <?php
+                                    $isBk = !empty($j['target_kegiatan']) || !empty($j['kegiatan_layanan']) || !empty($j['hasil_dicapai']);
+                                    $materiDisplay = $isBk
+                                        ? 'Sasaran: ' . ($j['target_kegiatan'] ?? '-') . ' | Layanan: ' . ($j['kegiatan_layanan'] ?? '-') . ' | Hasil: ' . ($j['hasil_dicapai'] ?? $j['materi'] ?? '-')
+                                        : ($j['materi'] ?? '-');
+                                    ?>
                                     <tr class="border-b hover:bg-gray-50">
                                         <td class="px-3 py-2"><?= $j['date_display'] ?></td>
                                         <td class="px-3 py-2"><?= htmlspecialchars($j['teacher_name']) ?></td>
                                         <td class="px-3 py-2"><?= htmlspecialchars($j['subject_name']) ?></td>
                                         <td class="px-3 py-2 text-center"><?= $j['jam_ke'] ?></td>
-                                        <td class="px-3 py-2 text-sm"><?= htmlspecialchars(substr($j['materi'], 0, 60)) . (strlen($j['materi']) > 60 ? '...' : '') ?></td>
+                                        <td class="px-3 py-2 text-sm"><?= htmlspecialchars(substr((string)$materiDisplay, 0, 80)) . (strlen((string)$materiDisplay) > 80 ? '...' : '') ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

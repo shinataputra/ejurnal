@@ -4,6 +4,20 @@ $schoolName = isset($settingsModel)
     ? $settingsModel->get('school_name')
     : 'SMKN 1 Probolinggo';
 $isGuruBk = (($current_user_local['role'] ?? '') === 'guru_bk');
+$hasBkData = false;
+if (!empty($journals_local)) {
+    foreach ($journals_local as $row) {
+        if (
+            !empty($row['target_kegiatan']) ||
+            !empty($row['kegiatan_layanan']) ||
+            !empty($row['hasil_dicapai'])
+        ) {
+            $hasBkData = true;
+            break;
+        }
+    }
+}
+$showBkColumns = $isGuruBk && $hasBkData;
 ?>
 <!doctype html>
 <html lang="id">
@@ -185,7 +199,7 @@ $isGuruBk = (($current_user_local['role'] ?? '') === 'guru_bk');
 
         <!-- JUDUL -->
         <div class="judul">
-            Rekap Jurnal <?= $isGuruBk ? 'Layanan BK' : 'Mengajar' ?> Bulan <?= htmlspecialchars($month_display_local ?? '') ?>
+            Rekap Jurnal <?= $showBkColumns ? 'Layanan BK' : 'Mengajar' ?> Bulan <?= htmlspecialchars($month_display_local ?? '') ?>
         </div>
 
         <!-- INFO -->
@@ -210,7 +224,7 @@ $isGuruBk = (($current_user_local['role'] ?? '') === 'guru_bk');
                         <th style="width:10%">Kelas</th>
                         <th style="width:7%">Jam</th>
                         <th style="width:16%">Mapel</th>
-                        <?php if ($isGuruBk): ?>
+                        <?php if ($showBkColumns): ?>
                             <th style="width:20%">Sasaran</th>
                             <th style="width:16%">Layanan</th>
                             <th style="width:16%">Hasil</th>
@@ -229,7 +243,7 @@ $isGuruBk = (($current_user_local['role'] ?? '') === 'guru_bk');
                             <td class="center"><?= htmlspecialchars(str_replace('-', ' ', $j['class_name'])) ?></td>
                             <td class="center"><?= htmlspecialchars($j['jam_ke']) ?></td>
                             <td><?= htmlspecialchars($j['subject_name']) ?></td>
-                            <?php if ($isGuruBk): ?>
+                            <?php if ($showBkColumns): ?>
                                 <td class="materi-cell"><?= htmlspecialchars($j['target_kegiatan'] ?? '-') ?></td>
                                 <td class="materi-cell"><?= htmlspecialchars($j['kegiatan_layanan'] ?? '-') ?></td>
                                 <td class="materi-cell"><?= htmlspecialchars($j['hasil_dicapai'] ?? $j['materi'] ?? '-') ?></td>
