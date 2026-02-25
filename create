@@ -1,0 +1,11 @@
+653:                $this->taskModel->create([
+677:        $tasks = $this->taskModel->findByTeacher($current_user['id']);
+681:            $pending_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'pending');
+682:            $verified_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'verified');
+683:            $rejected_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'rejected');
+724:        $tasks = $this->taskModel->findByTeacher($current_user['id']);
+727:        $pending_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'pending');
+728:        $verified_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'verified');
+729:        $rejected_count = $this->taskModel->countByTeacherAndStatus($current_user['id'], 'rejected');
+746:        $task = $this->taskModel->findById($id);
+765:        $this->taskModel->delete($id, $current_user['id']);

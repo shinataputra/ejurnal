@@ -66,7 +66,7 @@
                                 <span><?= htmlspecialchars($task['class_name']) ?></span>
                             </td>
                             <td class="px-4 py-3">
-                                <span>Jam ke-<?= htmlspecialchars($task['jam_ke']) ?></span>
+                                <span><?= htmlspecialchars($task['jam_ke']) ?></span>
                             </td>
                             <td class="px-4 py-3">
                                 <?php

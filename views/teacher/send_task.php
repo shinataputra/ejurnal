@@ -1,6 +1,9 @@
 <?php
 // views/teacher/send_task.php
 ?>
+<?php
+$isGuruBk = !empty($is_guru_bk);
+?>
 <div class="bg-white rounded-lg shadow-md p-6">
     <h1 class="text-3xl font-bold text-gray-900 mb-6">📤 Kirim Tugas Kelas</h1>
 
@@ -19,50 +22,94 @@
     <?php endif; ?>
 
     <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Tanggal <span class="text-red-500">*</span>
+            </label>
+            <input type="date" name="date" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" value="<?= date('Y-m-d') ?>">
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Jenjang -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Tingkat Kelas <span class="text-red-500">*</span>
+                    Kelas <span class="text-red-500">*</span>
                 </label>
-                <select name="jenjang" id="jenjang" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">-- Pilih Tingkat Kelas --</option>
-                    <?php foreach ($jenjangs as $j): ?>
-                        <option value="<?= htmlspecialchars($j) ?>"><?= htmlspecialchars($j) ?></option>
+                <div class="grid grid-cols-2 gap-2">
+                    <select name="jenjang" id="jenjang" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">-- Pilih Jenjang --</option>
+                        <?php foreach ($jenjangs as $j): ?>
+                            <option value="<?= htmlspecialchars($j) ?>"><?= htmlspecialchars($j) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <select name="class_id" id="rombel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">-- Pilih Rombel --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Mata Pelajaran <span class="text-red-500">*</span>
+                </label>
+                <?php if ($isGuruBk): ?>
+                    <input type="hidden" name="subject_id" value="<?= (int)($bk_subject_id ?? 0) ?>">
+                    <input type="text" value="Bimbingan Konseling" readonly class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+                <?php else: ?>
+                    <select name="subject_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">-- Pilih Mapel --</option>
+                        <?php foreach ($subjects as $s): ?>
+                            <option value="<?= (int)$s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Jam ke <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="jam_ke" placeholder="Contoh: 2-4 atau 3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <?php if ($isGuruBk): ?>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Sasaran Kegiatan <span class="text-red-500">*</span>
+                </label>
+                <textarea name="target_kegiatan" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Kegiatan Layanan <span class="text-red-500">*</span>
+                </label>
+                <select name="kegiatan_layanan" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">-- Pilih Kegiatan Layanan --</option>
+                    <?php foreach (($bk_service_options ?? []) as $option): ?>
+                        <option value="<?= htmlspecialchars($option) ?>"><?= htmlspecialchars($option) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
-
-            <!-- Rombel -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Rombel <span class="text-red-500">*</span>
+                    Hasil yang Dicapai <span class="text-red-500">*</span>
                 </label>
-                <select name="rombel" id="rombel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">-- Pilih Rombel --</option>
-                </select>
+                <textarea name="hasil_dicapai" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
             </div>
-
-            <!-- Date -->
+        <?php else: ?>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Tanggal <span class="text-red-500">*</span>
+                    Materi <span class="text-red-500">*</span>
                 </label>
-                <input type="date" name="date" required min="<?= date('Y-m-d') ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" value="<?= date('Y-m-d') ?>">
+                <textarea name="materi" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
             </div>
+        <?php endif; ?>
 
-            <!-- Jam Ke -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Jam Ke <span class="text-red-500">*</span>
-                </label>
-                <select name="jam_ke" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">-- Pilih Jam --</option>
-                    <?php for ($i = 1; $i <= 10; $i++): ?>
-                        <option value="<?= $i ?>">Jam ke-<?= $i ?></option>
-                    <?php endfor; ?>
-                </select>
-            </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                <?= $isGuruBk ? 'Catatan Guru BK' : 'Catatan Guru' ?>
+            </label>
+            <textarea name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
         </div>
 
         <!-- File Upload -->
@@ -105,7 +152,7 @@
         if (jenjang && jenjangsData[jenjang]) {
             jenjangsData[jenjang].forEach(r => {
                 const option = document.createElement('option');
-                option.value = r.rombel;
+                option.value = r.id;
                 option.textContent = r.rombel;
                 rombelSelect.appendChild(option);
             });

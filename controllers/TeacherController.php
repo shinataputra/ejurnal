@@ -515,48 +515,87 @@ class TeacherController extends Controller
     {
         $this->requireTeacher();
         $current_user = $_SESSION['user'];
+        $isGuruBk = $this->isGuruBk();
+        $subjects = $this->subjectModel->all();
+        $bkSubjectId = $this->findBkSubjectId($subjects);
+        if ($isGuruBk && $bkSubjectId <= 0) {
+            $this->subjectModel->create('Bimbingan Konseling');
+            $subjects = $this->subjectModel->all();
+            $bkSubjectId = $this->findBkSubjectId($subjects);
+            if ($bkSubjectId <= 0) {
+                $_SESSION['flash_error'] = 'Mapel "Bimbingan Konseling" belum tersedia. Hubungi admin.';
+                $this->redirect('index.php?p=teacher/dashboard');
+                return;
+            }
+        }
+        if ($isGuruBk && !$this->journalModel->supportsBkFields()) {
+            $_SESSION['flash_error'] = 'Database belum mendukung jurnal Guru BK. Jalankan migrasi database terlebih dahulu.';
+            $this->redirect('index.php?p=teacher/dashboard');
+            return;
+        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Validate input
-            $jenjang = $_POST['jenjang'] ?? '';
-            $rombel = $_POST['rombel'] ?? '';
-            $date = $_POST['date'] ?? '';
-            $jam_ke = $_POST['jam_ke'] ?? '';
+            $date = $_POST['date'] ?? date('Y-m-d');
+            $class_id = (int)($_POST['class_id'] ?? 0);
+            $jam_ke = trim((string)($_POST['jam_ke'] ?? ''));
+            $subjectId = (int)($_POST['subject_id'] ?? 0);
+            if ($isGuruBk && $bkSubjectId > 0) {
+                $subjectId = $bkSubjectId;
+            }
 
-            // Validate date (must be today or future)
-            $today = date('Y-m-d');
-            if ($date < $today) {
-                $_SESSION['flash_error'] = 'Tanggal harus hari ini atau masa depan.';
+            $materi = trim((string)($_POST['materi'] ?? ''));
+            $notes = trim((string)($_POST['notes'] ?? ''));
+            $targetKegiatan = trim((string)($_POST['target_kegiatan'] ?? ''));
+            $kegiatanLayanan = trim((string)($_POST['kegiatan_layanan'] ?? ''));
+            $hasilDicapai = trim((string)($_POST['hasil_dicapai'] ?? ''));
+
+            if ($class_id <= 0 || $jam_ke === '' || !$date) {
+                $_SESSION['flash_error'] = 'Form kirim tugas belum lengkap.';
                 $this->redirect('index.php?p=teacher/send-task');
                 return;
             }
 
-            // Validate jam_ke (should be 1-10)
-            if (!$jam_ke || $jam_ke < 1 || $jam_ke > 10) {
-                $_SESSION['flash_error'] = 'Jam ke harus antara 1-10.';
+            if ($subjectId <= 0) {
+                $_SESSION['flash_error'] = 'Mata pelajaran wajib dipilih.';
                 $this->redirect('index.php?p=teacher/send-task');
                 return;
             }
 
-            // Find class_id from jenjang and rombel
+            if ($isGuruBk) {
+                if ($targetKegiatan === '' || $kegiatanLayanan === '' || $hasilDicapai === '') {
+                    $_SESSION['flash_error'] = 'Form Guru BK belum lengkap.';
+                    $this->redirect('index.php?p=teacher/send-task');
+                    return;
+                }
+
+                if (!in_array($kegiatanLayanan, self::BK_SERVICE_OPTIONS, true)) {
+                    $_SESSION['flash_error'] = 'Kegiatan layanan tidak valid.';
+                    $this->redirect('index.php?p=teacher/send-task');
+                    return;
+                }
+            } elseif ($materi === '') {
+                $_SESSION['flash_error'] = 'Materi wajib diisi.';
+                $this->redirect('index.php?p=teacher/send-task');
+                return;
+            }
+
+            // Validate class_id
             $classes = $this->classModel->all();
-            $class_id = 0;
+            $className = '';
             foreach ($classes as $c) {
-                $name = trim($c['name']);
-                $parts = preg_split('/[-\s]+/', $name, 2);
-                $c_jenjang = $parts[0] ?? '';
-                $c_rombel = $parts[1] ?? '';
-                if ($c_jenjang === $jenjang && $c_rombel === $rombel) {
-                    $class_id = $c['id'];
+                if ((int)$c['id'] === $class_id) {
+                    $className = trim((string)$c['name']);
                     break;
                 }
             }
 
-            if ($class_id === 0) {
+            if ($className === '') {
                 $_SESSION['flash_error'] = 'Kelas tidak ditemukan.';
                 $this->redirect('index.php?p=teacher/send-task');
                 return;
             }
+            $parts = preg_split('/[-\s]+/', $className, 2);
+            $jenjang = $parts[0] ?? '';
 
             // Handle file upload
             $file_path = null;
@@ -596,16 +635,38 @@ class TeacherController extends Controller
                 return;
             }
 
-            // Save to database
-            $this->taskModel->create([
-                ':user_id' => $current_user['id'],
-                ':jenjang' => $jenjang,
-                ':class_id' => $class_id,
-                ':date' => $date,
-                ':jam_ke' => $jam_ke,
-                ':file_path' => $file_path,
-                ':status' => 'pending'
-            ]);
+            try {
+                // Save journal first so it appears in recap immediately.
+                $this->journalModel->create([
+                    'user_id' => $current_user['id'],
+                    'date' => $date,
+                    'class_id' => $class_id,
+                    'subject_id' => $subjectId,
+                    'jam_ke' => $jam_ke,
+                    'materi' => $isGuruBk ? $hasilDicapai : $materi,
+                    'notes' => $notes,
+                    'target_kegiatan' => $isGuruBk ? $targetKegiatan : '',
+                    'kegiatan_layanan' => $isGuruBk ? $kegiatanLayanan : '',
+                    'hasil_dicapai' => $isGuruBk ? $hasilDicapai : ''
+                ]);
+
+                $this->taskModel->create([
+                    ':user_id' => $current_user['id'],
+                    ':jenjang' => $jenjang,
+                    ':class_id' => $class_id,
+                    ':date' => $date,
+                    ':jam_ke' => $jam_ke,
+                    ':file_path' => $file_path,
+                    ':status' => 'pending'
+                ]);
+            } catch (\Throwable $e) {
+                if ($file_path && file_exists(__DIR__ . '/../' . $file_path)) {
+                    @unlink(__DIR__ . '/../' . $file_path);
+                }
+                $_SESSION['flash_error'] = 'Gagal mengirim tugas: ' . $e->getMessage();
+                $this->redirect('index.php?p=teacher/send-task');
+                return;
+            }
 
             $_SESSION['flash_success'] = 'Tugas berhasil dikirim untuk verifikasi admin.';
             $this->redirect('index.php?p=teacher/send-task');
@@ -645,6 +706,10 @@ class TeacherController extends Controller
 
             $this->render('teacher/send_task.php', [
                 'current_user' => $current_user,
+                'subjects' => $subjects,
+                'is_guru_bk' => $isGuruBk,
+                'bk_subject_id' => $bkSubjectId,
+                'bk_service_options' => self::BK_SERVICE_OPTIONS,
                 'jenjangs' => $jenjangs,
                 'rombelsByJenjang' => $rombelsByJenjang
             ]);

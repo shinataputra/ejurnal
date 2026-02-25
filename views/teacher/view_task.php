@@ -34,7 +34,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600 font-medium">Jam Ke:</span>
-                        <span class="text-gray-900 font-semibold">Jam ke-<?= htmlspecialchars($task['jam_ke']) ?></span>
+                        <span class="text-gray-900 font-semibold"><?= htmlspecialchars($task['jam_ke']) ?></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600 font-medium">Tingkat Kelas:</span>
