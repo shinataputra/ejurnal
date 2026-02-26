@@ -110,6 +110,7 @@ $page_title = 'Rekap Jurnal Per Guru';
                                     <?php else: ?>
                                         <th class="px-3 py-2 text-left font-semibold">Materi</th>
                                     <?php endif; ?>
+                                    <th class="px-3 py-2 text-left font-semibold">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -126,6 +127,15 @@ $page_title = 'Rekap Jurnal Per Guru';
                                         <?php else: ?>
                                             <td class="px-3 py-2 text-sm"><?= htmlspecialchars(substr($j['materi'], 0, 60)) . (strlen($j['materi']) > 60 ? '...' : '') ?></td>
                                         <?php endif; ?>
+                                        <td class="px-3 py-2">
+                                            <a
+                                                href="index.php?p=admin/rekap-delete-teacher-journal&id=<?= (int)$j['id'] ?>&teacher_id=<?= (int)$teacher_id ?>&month=<?= urlencode((string)$month) ?>&year=<?= urlencode((string)$year) ?>"
+                                                class="inline-block bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold px-3 py-1 rounded"
+                                                onclick="return confirm('Hapus jurnal ini?')"
+                                            >
+                                                🗑️ Hapus
+                                            </a>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

@@ -804,6 +804,36 @@ class AdminController extends Controller
         ]);
     }
 
+    public function rekapDeleteTeacherJournal()
+    {
+        $this->requireAdmin();
+        $journalId = (int)($_GET['id'] ?? 0);
+        $teacherId = (int)($_GET['teacher_id'] ?? 0);
+        $month = $_GET['month'] ?? date('m');
+        $year = $_GET['year'] ?? date('Y');
+
+        if ($journalId <= 0 || $teacherId <= 0) {
+            $_SESSION['flash_error'] = 'Data jurnal tidak valid.';
+            $this->redirect('index.php?p=admin/rekap-by-teacher&teacher_id=' . $teacherId . '&month=' . urlencode((string)$month) . '&year=' . urlencode((string)$year));
+            return;
+        }
+
+        $teacher = $this->userModel->findById($teacherId);
+        if (!$teacher || !in_array($teacher['role'] ?? '', ['teacher', 'guru_bk'], true)) {
+            $_SESSION['flash_error'] = 'Guru tidak ditemukan.';
+            $this->redirect('index.php?p=admin/rekap-by-teacher&month=' . urlencode((string)$month) . '&year=' . urlencode((string)$year));
+            return;
+        }
+
+        if ($this->journalModel->delete($journalId, $teacherId)) {
+            $_SESSION['flash_success'] = 'Jurnal berhasil dihapus.';
+        } else {
+            $_SESSION['flash_error'] = 'Gagal menghapus jurnal.';
+        }
+
+        $this->redirect('index.php?p=admin/rekap-by-teacher&teacher_id=' . $teacherId . '&month=' . urlencode((string)$month) . '&year=' . urlencode((string)$year));
+    }
+
     public function rekapPrintClass()
     {
         $this->requireAdmin();
